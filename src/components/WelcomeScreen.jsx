@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
 import { sound } from '../audio';
+import { CERTIFICATES } from '../data/certificates';
 
 export default function WelcomeScreen({
   lang = 'en',
-  theme = 'dark',
-  onToggleTheme,
   onStartGame,
   onToggleLang,
   isAudioMuted,
@@ -12,13 +11,26 @@ export default function WelcomeScreen({
   onTriggerScreensaver
 }) {
   const [name, setName] = useState('');
-  const [selectedAvatar, setSelectedAvatar] = useState('👤');
+  const [selectedAvatar, setSelectedAvatar] = useState('👨‍💼');
   const [isLaunching, setIsLaunching] = useState(false);
   const [launchCountdown, setLaunchCountdown] = useState(null); // null | 3 | 2 | 1 | 'DASH!'
   const isEn = lang === 'en';
 
-  const avatars = ['👨‍💼', '👩‍💼', '🧑‍🎓', '👨‍🌾', '👩‍🔬'];
-  const quickTags = ['Aarav_CG', 'Priya_Speed', 'Rohan_Dash', 'Kavya_Pro', 'Vikram_Ace'];
+  const avatarOptions = [
+    { emoji: '👨‍💼', label_en: 'Citizen', label_hi: 'नागरिक' },
+    { emoji: '👩‍💼', label_en: 'Officer', label_hi: 'अधिकारी' },
+    { emoji: '🧑‍🎓', label_en: 'Student', label_hi: 'छात्र' },
+    { emoji: '👨‍🌾', label_en: 'Farmer', label_hi: 'किसान' },
+    { emoji: '👩‍🔬', label_en: 'Specialist', label_hi: 'विशेषज्ञ' }
+  ];
+
+  const quickTags = [
+    'Aarav_Raipur',
+    'Priya_Bhilai',
+    'Kavya_CG',
+    'Rohan_Speed',
+    'Vikram_Bilaspur'
+  ];
 
   const handleInputChange = (e) => {
     setName(e.target.value);
@@ -29,6 +41,11 @@ export default function WelcomeScreen({
     sound.playPickup();
     const randomTag = quickTags[Math.floor(Math.random() * quickTags.length)];
     setName(randomTag);
+  };
+
+  const handleSelectQuickTag = (tag) => {
+    sound.playPickup();
+    setName(tag);
   };
 
   const handleLaunch = (e) => {
@@ -61,6 +78,8 @@ export default function WelcomeScreen({
     }, 1500);
   };
 
+  const currentAvatarObj = avatarOptions.find(a => a.emoji === selectedAvatar) || avatarOptions[0];
+
   return (
     <div className={`welcome-stage-arena ${isLaunching ? 'stage-warp-exit' : 'stage-enter-animated'}`}>
       {/* Launch Hologram Countdown Overlay (3... 2... 1... DASH!) */}
@@ -70,22 +89,28 @@ export default function WelcomeScreen({
           <div className="countdown-number-display">
             {launchCountdown}
           </div>
+          <div className="countdown-sub-hint">
+            {isEn ? 'GET READY TO SORT!' : 'दस्तावेज़ छांटने के लिए तैयार हो जाएं!'}
+          </div>
         </div>
       )}
 
-      {/* Top Global Nav */}
+      {/* Top Global Nav Header */}
       <header className="welcome-nav-bar">
         <div className="welcome-nav-brand">
           <div className="cg-emblem-badge" title="Government of Chhattisgarh">
-            <svg viewBox="0 0 100 100" width="30" height="30" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="50" cy="50" r="46" stroke="#ffffff" strokeWidth="2.5" opacity="0.6"/>
-              <circle cx="50" cy="50" r="41" stroke="#ffaa00" strokeWidth="2" strokeDasharray="4 2"/>
-              <path d="M50 14 L55 24 L66 20 L68 31 L79 32 L76 43 L85 49 L79 56 L85 64 L75 68 L76 79 L65 78 L61 88 L50 83 L39 88 L35 78 L24 79 L25 68 L15 64 L21 56 L15 49 L24 43 L21 32 L32 31 L34 20 L45 24 Z" fill="rgba(255, 170, 0, 0.25)" stroke="#00d2ff" strokeWidth="1.8"/>
-              <circle cx="50" cy="50" r="16" fill="#0077ff" stroke="#ffffff" strokeWidth="1.5"/>
+            <svg viewBox="0 0 100 100" width="32" height="32" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="50" cy="50" r="46" stroke="#ff6d00" strokeWidth="3" opacity="0.8"/>
+              <circle cx="50" cy="50" r="41" stroke="#00c853" strokeWidth="2.5" strokeDasharray="4 2"/>
+              <path d="M50 14 L55 24 L66 20 L68 31 L79 32 L76 43 L85 49 L79 56 L85 64 L75 68 L76 79 L65 78 L61 88 L50 83 L39 88 L35 78 L24 79 L25 68 L15 64 L21 56 L15 49 L24 43 L21 32 L32 31 L34 20 L45 24 Z" fill="rgba(255, 109, 0, 0.2)" stroke="#0084ff" strokeWidth="2"/>
+              <circle cx="50" cy="50" r="16" fill="#0084ff" stroke="#ffffff" strokeWidth="2"/>
             </svg>
           </div>
           <div className="nav-brand-text">
             <h3 className="nav-main-title">CHiPS • Government of Chhattisgarh</h3>
+            <span className="nav-sub-title">
+              {isEn ? 'Directorate of IT & Citizen e-Governance Services' : 'इलेक्ट्रॉनिक्स एवं सूचना प्रौद्योगिकी विभाग'}
+            </span>
           </div>
         </div>
 
@@ -94,7 +119,7 @@ export default function WelcomeScreen({
             type="button"
             onClick={onTriggerScreensaver}
             className="icon-btn screensaver-nav-btn"
-            title={isEn ? 'Attract Mode / Screensaver' : 'स्क्रीनसेवर'}
+            title={isEn ? 'Attract Screensaver Mode' : 'स्क्रीनसेवर मोड'}
           >
             🌌
           </button>
@@ -102,37 +127,37 @@ export default function WelcomeScreen({
             type="button"
             onClick={onToggleLang}
             className="icon-btn lang-btn"
-            title={isEn ? 'हिंदी' : 'English'}
+            title={isEn ? 'Switch to Hindi (हिंदी)' : 'Switch to English'}
           >
-            {isEn ? '🇮🇳' : '🇬🇧'}
+            {isEn ? '🇮🇳 HI' : '🇬🇧 EN'}
           </button>
           <button
             type="button"
             onClick={onToggleAudio}
             className="icon-btn"
-            title={isAudioMuted ? 'Unmute' : 'Mute'}
+            title={isAudioMuted ? 'Unmute Audio' : 'Mute Audio'}
           >
             {isAudioMuted ? '🔇' : '🔊'}
           </button>
         </div>
       </header>
 
-      {/* Main Full-Screen Welcome Hero Arena */}
+      {/* Main Hero Arena Content */}
       <main className="welcome-hero-arena">
-        {/* Animated Callout Pill with Drop-in transition */}
+        {/* Top Mission Pill */}
         <div className="lets-start-animated-banner">
-          <span className="banner-word word-flame">🔥</span>
+          <span className="banner-word word-flame">🏛️</span>
           <span className="banner-word word-greet">
-            {isEn ? "LET'S START!" : "चलिए शुरू करते हैं!"}
+            {isEn ? "OFFICIAL SEVA SETU MISSION" : "आधिकारिक सेवा सेतु नागरिक मिशन"}
           </span>
           <span className="banner-dot">•</span>
           <span className="banner-word word-race">
-            {isEn ? "45s RACE" : "४५ सेकंड रेस"}
+            {isEn ? "45s RAPID DASH" : "४५ सेकंड रैपिड रेस"}
           </span>
-          <span className="banner-word word-flag">🏁</span>
+          <span className="banner-word word-flag">⚡</span>
         </div>
 
-        {/* Central Brand Title & Animated Kinetic Words */}
+        {/* Central Brand Title */}
         <div className="welcome-title-cluster">
           <div className="mascot-grand-avatar">
             <span className="mascot-robot-face">🤖</span>
@@ -146,17 +171,42 @@ export default function WelcomeScreen({
             <span className="kinetic-word word-3" style={{ '--word-delay': '0.35s' }}>DOCUMENT</span>
             <span className="kinetic-word word-4" style={{ '--word-delay': '0.45s' }}>DASH</span>
           </h1>
+
+          <p className="welcome-hero-subtitle">
+            {isEn
+              ? 'Master Chhattisgarh statutory certificates, sort official records & beat the 45-second race!'
+              : 'छत्तीसगढ़ के अनिवार्य प्रमाण पत्र पहचानें, सही दस्तावेज़ मिलाएं और ४५ सेकंड की घड़ी को मात दें!'}
+          </p>
         </div>
 
-        {/* High-Tech Cyber-Arcade Gamer ID Console */}
+        {/* 4 Interactive Certificate Quest Badges Preview */}
+        <div className="welcome-quests-showcase">
+          {CERTIFICATES.map(c => (
+            <div
+              key={c.id}
+              className="welcome-quest-badge"
+              style={{ '--quest-color': c.color }}
+            >
+              <span className="quest-badge-icon">{c.icon}</span>
+              <div className="quest-badge-info">
+                <strong className="quest-badge-name">{isEn ? c.name_en : c.name_hi}</strong>
+                <span className="quest-badge-docs">
+                  {c.mandatoryDocIds.length} {isEn ? 'Proofs Needed' : 'दस्तावेज़ आवश्यक'}
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Main Citizen Access Terminal Card */}
         <div className="cyber-terminal-card">
-          {/* Futuristic HUD Corner Brackets */}
+          {/* Futuristic Corner Brackets */}
           <div className="hud-corner corner-tl" />
           <div className="hud-corner corner-tr" />
           <div className="hud-corner corner-bl" />
           <div className="hud-corner corner-br" />
 
-          {/* Terminal Status Bar */}
+          {/* Terminal Header Bar */}
           <div className="terminal-status-header">
             <div className="terminal-status-indicator">
               <span className="terminal-led-dot" />
@@ -172,23 +222,26 @@ export default function WelcomeScreen({
               title={isEn ? 'Generate random callsign' : 'यादृच्छिक नाम चुनें'}
             >
               <span>🎲</span>
-              <span>{isEn ? 'RANDOM ID' : 'नया नाम'}</span>
+              <span>{isEn ? 'RANDOM CALLSIGN' : 'यादृच्छिक नाम'}</span>
             </button>
           </div>
 
           <form onSubmit={handleLaunch} className="terminal-form">
-            {/* Cyber Input Field with Holo-Avatar Pod */}
+            {/* Input Row with Avatar Pod */}
             <div className="cyber-input-enclosure">
-              {/* Animated Holo-Avatar Pod */}
+              {/* Animated Avatar Pod */}
               <div className="holo-avatar-pod" title="Player Avatar">
                 <span className="holo-avatar-face">{selectedAvatar}</span>
+                <span className="holo-pod-role-badge">
+                  {isEn ? currentAvatarObj.label_en : currentAvatarObj.label_hi}
+                </span>
                 <div className="holo-pod-ring" />
               </div>
 
               {/* Input Core Bar */}
               <div className="cyber-input-core">
                 <div className="cyber-tag-prefix">
-                  <span>PLAYER</span>
+                  <span>PILOT</span>
                   <span className="prefix-arrow">❯_</span>
                 </div>
 
@@ -196,7 +249,7 @@ export default function WelcomeScreen({
                   id="participant-name-input"
                   type="text"
                   className="cyber-text-field"
-                  placeholder={isEn ? 'Enter Callsign / Name...' : 'अपना नाम दर्ज करें...'}
+                  placeholder={isEn ? 'Enter Your Name / Callsign...' : 'अपना नाम या कॉलसाइन दर्ज करें...'}
                   value={name}
                   onChange={handleInputChange}
                   autoFocus
@@ -209,29 +262,50 @@ export default function WelcomeScreen({
               </div>
             </div>
 
-            {/* Quick Avatar Selector Chips */}
-            <div className="terminal-options-row">
-              <span className="options-row-label">
-                {isEn ? 'SELECT AVATAR:' : 'अवतार चुनें:'}
+            {/* Quick Callsign Tags Bar */}
+            <div className="quick-tags-container">
+              <span className="quick-tags-label">
+                {isEn ? 'QUICK SELECT:' : 'त्वरित चयन:'}
               </span>
-              <div className="avatar-chip-row">
-                {avatars.map(av => (
+              <div className="quick-tags-row">
+                {quickTags.map(tag => (
                   <button
-                    key={av}
+                    key={tag}
                     type="button"
-                    className={`avatar-chip-btn ${selectedAvatar === av ? 'avatar-active' : ''}`}
-                    onClick={() => {
-                      sound.playPickup();
-                      setSelectedAvatar(av);
-                    }}
+                    className={`quick-tag-pill ${name === tag ? 'tag-selected' : ''}`}
+                    onClick={() => handleSelectQuickTag(tag)}
                   >
-                    {av}
+                    {tag}
                   </button>
                 ))}
               </div>
             </div>
 
-            {/* Supercharged Arcade Start CTA */}
+            {/* Avatar Role Selection Row */}
+            <div className="terminal-options-row">
+              <span className="options-row-label">
+                {isEn ? 'SELECT AVATAR ROLE:' : 'अवतार भूमिका चुनें:'}
+              </span>
+              <div className="avatar-chip-row">
+                {avatarOptions.map(av => (
+                  <button
+                    key={av.emoji}
+                    type="button"
+                    className={`avatar-chip-btn ${selectedAvatar === av.emoji ? 'avatar-active' : ''}`}
+                    onClick={() => {
+                      sound.playPickup();
+                      setSelectedAvatar(av.emoji);
+                    }}
+                    title={isEn ? av.label_en : av.label_hi}
+                  >
+                    <span className="avatar-emoji-span">{av.emoji}</span>
+                    <span className="avatar-title-sub">{isEn ? av.label_en : av.label_hi}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* High-Energy Glowing Launch CTA */}
             <button
               type="submit"
               className="terminal-start-cta"
@@ -241,12 +315,39 @@ export default function WelcomeScreen({
               <span className="cta-content-row">
                 <span className="cta-flag-icon">🏁</span>
                 <span className="cta-main-text">
-                  {isEn ? "LET'S START THE 45 SECS RACE!" : "चलिए शुरू करते हैं ४५ सेकंड की रेस!"}
+                  {isEn ? "START 45s CITIZEN RACE!" : "४५ सेकंड नागरिक रेस शुरू करें!"}
                 </span>
-                <span className="cta-lightning-bolt">⚡</span>
+                <span className="cta-lightning-bolt">🚀</span>
               </span>
             </button>
           </form>
+        </div>
+
+        {/* 3-Step "How to Play" Guide Bar */}
+        <div className="welcome-guide-steps">
+          <div className="guide-step-card">
+            <span className="step-num-bubble">1</span>
+            <div className="step-content">
+              <strong>{isEn ? 'Spot Statutory Proofs' : 'दस्तावेज़ पहचानें'}</strong>
+              <p>{isEn ? 'Click or drag official records from top shelf' : 'ऊपर शेल्फ से सरकारी प्रमाण पत्र चुनें'}</p>
+            </div>
+          </div>
+          <div className="guide-step-arrow">➔</div>
+          <div className="guide-step-card">
+            <span className="step-num-bubble">2</span>
+            <div className="step-content">
+              <strong>{isEn ? 'Drop in Certificate Basket' : 'सही बास्केट में डालें'}</strong>
+              <p>{isEn ? 'Deposit into Domicile, Caste, Income or Marriage' : 'निवास, जाति, आय या विवाह में जमा करें'}</p>
+            </div>
+          </div>
+          <div className="guide-step-arrow">➔</div>
+          <div className="guide-step-card">
+            <span className="step-num-bubble">3</span>
+            <div className="step-content">
+              <strong>{isEn ? 'Unlock & Inspect Copies' : 'प्रमाण पत्र अनलॉक करें'}</strong>
+              <p>{isEn ? 'Beat the 45s clock & download verified records' : 'समय समाप्त होने से पहले सभी अनलॉक करें'}</p>
+            </div>
+          </div>
         </div>
       </main>
     </div>

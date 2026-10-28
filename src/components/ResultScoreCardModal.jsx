@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import confetti from 'canvas-confetti';
-import { Flag, Star, User, ScrollText, Lock, Users, RotateCcw } from 'lucide-react';
+import { Flag, Star, User, ScrollText, Lock, Users, RotateCcw, Hourglass } from 'lucide-react';
 import { CERTIFICATES } from '../data/certificates';
 import Icon from './Icon';
 import './ResultScoreCardModal.css';
@@ -13,10 +13,13 @@ export default function ResultScoreCardModal({
   highestCombo = 1,
   timeExpired = true,
   lang = 'en',
+  idleSecondsLeft = Infinity,
   onViewCertificate,
   onNextParticipant,
   onRetry
 }) {
+  // Warn before the kiosk clears this score card for the next participant
+  const RESET_WARNING_SECONDS = 20;
   const isEn = lang === 'en';
   const unlockedCount = unlockedCertificates.length;
 
@@ -204,6 +207,15 @@ export default function ResultScoreCardModal({
             <Icon as={RotateCcw} /> {isEn ? 'Try Again (पुनः प्रयास)' : 'पुनः प्रयास करें'}
           </button>
         </div>
+
+        {idleSecondsLeft <= RESET_WARNING_SECONDS && (
+          <p className="scorecard-reset-notice" aria-live="polite">
+            <Icon as={Hourglass} />
+            {isEn
+              ? `Starting over for the next participant in ${idleSecondsLeft}s. Tap anywhere to stay.`
+              : `${idleSecondsLeft} सेकंड में अगले प्रतिभागी के लिए नया सत्र शुरू होगा। रुकने के लिए कहीं भी टैप करें।`}
+          </p>
+        )}
       </div>
     </div>
   );

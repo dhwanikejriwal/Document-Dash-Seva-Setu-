@@ -40,19 +40,21 @@
   box-shadow: 0 0 10px rgba(var(--white-rgb), 0.9);
 }
 
-/* Main 3D Basket Container */
+/* Main Basket Container: solid certificate colour with white content */
 .gamified-basket-container {
   width: 100%;
-  background: linear-gradient(180deg, rgba(var(--white-rgb), 0.98) 0%, rgba(var(--sky-50-rgb), 0.98) 100%);
-  backdrop-filter: blur(16px);
-  border: 2.5px solid var(--basket-glow);
+  background:
+    linear-gradient(180deg, rgba(var(--white-rgb), 0.16) 0%, rgba(var(--white-rgb), 0) 55%),
+    var(--basket-solid);
+  border: 2.5px solid rgba(var(--white-rgb), 0.35);
   border-radius: var(--radius-2xl) var(--radius-2xl) var(--radius-3xl) var(--radius-3xl);
   padding: 12px 14px;
   display: flex;
   flex-direction: column;
   gap: 8px;
   position: relative;
-  box-shadow: 0 14px 35px rgba(var(--blue-800-rgb), 0.12), 0 0 20px rgba(var(--blue-500-rgb), 0.1), inset 0 1px 0 rgba(var(--white-rgb), 0.9);
+  color: var(--white);
+  box-shadow: 0 14px 30px rgba(var(--black-rgb), 0.18), inset 0 1px 0 rgba(var(--white-rgb), 0.35);
   transition: all var(--dur-base) var(--ease-out);
   overflow: hidden;
 }
@@ -61,22 +63,14 @@
 .basket-rim {
   width: 100%;
   border-radius: var(--radius-lg);
-  background: rgba(var(--black-rgb), 0.04);
-  border: 2px dashed rgba(var(--blue-500-rgb), 0.35);
+  background: rgba(var(--white-rgb), 0.16);
+  border: 2px dashed rgba(var(--white-rgb), 0.55);
   padding: 4px 8px;
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
   min-height: 30px;
-}
-
-.basket-rim-glow {
-  position: absolute;
-  inset: 0;
-  border-radius: var(--radius-lg);
-  opacity: 0.15;
-  pointer-events: none;
 }
 
 .basket-rim-opening {
@@ -87,31 +81,31 @@
 }
 
 .rim-drop-hint {
-  color: var(--blue-600);
+  color: var(--white);
   animation: pulseDrop 0.8s infinite alternate;
 }
 
 .rim-status-hint {
-  color: var(--ink-600);
+  color: var(--white);
   font-weight: var(--fw-heavy);
 }
 
 .unlocked-glow {
-  color: var(--amber-600) !important;
+  color: var(--gold-300) !important;
   font-weight: var(--fw-heavy);
   animation: pulseGold 1.5s infinite alternate;
 }
 
 /* Drag Over State */
 .gamified-basket-container.drag-over {
-  border-color: var(--blue-600);
+  border-color: var(--white);
   transform: scale(1.03);
-  box-shadow: 0 0 35px var(--basket-glow, rgba(var(--blue-500-rgb), 0.5));
+  box-shadow: 0 0 0 4px rgba(var(--white-rgb), 0.6), 0 0 35px var(--basket-glow);
 }
 
 .gamified-basket-container.basket-unlocked {
-  border-color: var(--gold-500);
-  box-shadow: 0 0 35px rgba(var(--gold-500-rgb), 0.45);
+  border-color: var(--gold-300);
+  box-shadow: 0 0 0 3px rgba(var(--gold-300-rgb), 0.5), 0 0 35px rgba(var(--gold-500-rgb), 0.45);
 }
 
 /* Basket Header Info */
@@ -127,8 +121,8 @@
   height: 44px;
   min-width: 44px;
   border-radius: var(--radius-lg);
-  background: rgba(var(--white-rgb), 0.95);
-  border: 2px solid;
+  background: rgba(var(--white-rgb), 0.2);
+  border: 2px solid rgba(var(--white-rgb), 0.6);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -138,22 +132,38 @@
 
 .basket-titles {
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Cue that hovering or tapping the basket shows its required documents */
+.basket-hint-cue {
+  display: inline-grid;
+  place-items: center;
+  flex-shrink: 0;
+  font-size: var(--text-base);
+  color: rgba(var(--white-rgb), 0.7);
+  transition: color var(--dur-fast);
+}
+
+.basket-hint-cue.is-active {
+  color: var(--white);
 }
 
 .basket-cert-title {
   font-size: var(--text-lg);
   font-weight: var(--fw-heavy);
   line-height: 1.25;
-  color: var(--ink-950);
+  color: var(--white);
+  text-shadow: 0 1px 2px rgba(var(--black-rgb), 0.2);
 }
 
 /* Interior Energy Liquid Gauge */
 .basket-interior-gauge {
   height: 52px;
   border-radius: var(--radius-md);
-  background: rgba(var(--black-rgb), 0.04);
-  border: 1.5px solid rgba(var(--blue-500-rgb), 0.15);
+  background: rgba(var(--black-rgb), 0.14);
+  border: 1.5px solid rgba(var(--white-rgb), 0.3);
   position: relative;
   overflow: hidden;
   display: flex;
@@ -166,9 +176,15 @@
   bottom: 0;
   left: 0;
   right: 0;
-  opacity: 0.45;
+  background: var(--white);
+  opacity: 0.3;
   transition: height var(--dur-slow) var(--ease-out);
   pointer-events: none;
+}
+
+.basket-unlocked .basket-liquid-fill {
+  background: linear-gradient(180deg, var(--gold-300), var(--saffron-400));
+  opacity: 0.6;
 }
 
 .basket-liquid-surface {
@@ -191,8 +207,9 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  color: var(--amber-600);
+  color: var(--white);
   font-weight: var(--fw-heavy);
+  text-shadow: 0 1px 3px rgba(var(--black-rgb), 0.3);
 }
 
 /* Basket Footer Progress & Percentage */
@@ -206,7 +223,7 @@
 .basket-progress-track {
   flex: 1;
   height: 8px;
-  background: rgba(var(--black-rgb), 0.08);
+  background: rgba(var(--black-rgb), 0.18);
   border-radius: var(--radius-sm);
   overflow: hidden;
   position: relative;
@@ -215,36 +232,18 @@
 .basket-progress-bar-fill {
   height: 100%;
   border-radius: var(--radius-sm);
+  background: var(--white);
   transition: width var(--dur-slow) ease;
+}
+
+.basket-unlocked .basket-progress-bar-fill {
+  background: linear-gradient(90deg, var(--gold-300), var(--gold-500));
 }
 
 .basket-percentage-pill {
   font-size: var(--text-base);
   font-weight: var(--fw-heavy);
-}
-
-.basket-unlocked-btn {
-  width: 100%;
-  background: linear-gradient(135deg, var(--gold-500), var(--saffron-500));
   color: var(--white);
-  border: none;
-  font-weight: var(--fw-heavy);
-  font-size: var(--text-md);
-  padding: 9px 16px;
-  border-radius: var(--radius-xl);
-  cursor: pointer;
-  box-shadow: 0 4px 18px rgba(var(--saffron-500-rgb), 0.4);
-  transition: all var(--dur-fast);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  margin-top: 4px;
-  animation: pulseBtn 1s infinite alternate;
-}
-
-.basket-unlocked-btn:hover {
-  filter: brightness(1.15);
 }
 
 /* RESPONSIVE DESIGN */
@@ -265,9 +264,4 @@
 @keyframes pulseDrop {
   0% { transform: scale(0.98); opacity: 0.8; }
   100% { transform: scale(1.05); opacity: 1; }
-}
-
-@keyframes pulseBtn {
-  0% { transform: scale(0.98); box-shadow: 0 0 15px rgba(var(--saffron-500-rgb), 0.35); }
-  100% { transform: scale(1.02); box-shadow: 0 0 25px rgba(var(--saffron-500-rgb), 0.6); }
 }

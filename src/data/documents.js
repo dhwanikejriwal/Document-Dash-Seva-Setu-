@@ -6,7 +6,7 @@ import {
   Signature, FilePenLine, ReceiptIndianRupee, MailOpen
 } from "lucide-react";
 
-// Supporting documents from the Seva Setu (CHiPS, Government of Chhattisgarh) prerequisite tables.
+// Supporting documents from the official certificate prerequisite tables.
 // Which certificate accepts which document lives in certificates.js; the tag names the document type.
 
 export const DOCUMENTS = [

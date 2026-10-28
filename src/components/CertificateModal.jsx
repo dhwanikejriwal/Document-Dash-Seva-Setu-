@@ -1,17 +1,20 @@
 import React from 'react';
-import { Landmark, User, BadgeCheck, Printer, Gamepad2 } from 'lucide-react';
+import { Award, User, BadgeCheck, Printer, ArrowLeft } from 'lucide-react';
 import { CERTIFICATES } from '../data/certificates';
 import { DOCUMENTS } from '../data/documents';
 import Icon from './Icon';
 import './CertificateModal.css';
+
+// The browser print dialog lets kiosk users reach the operating system, so printing is off.
+// Turn it on only when the kiosk browser prints silently (e.g. Chrome with --kiosk-printing).
+const PRINT_ENABLED = false;
 
 export default function CertificateModal({
   certificateId,
   collectedDocIds = [],
   participantName = 'Citizen Participant',
   lang = 'en',
-  onClose,
-  onContinue
+  onClose
 }) {
   const cert = CERTIFICATES.find(c => c.id === certificateId);
   if (!cert) return null;
@@ -39,16 +42,16 @@ export default function CertificateModal({
       <div className="cert-showcase-box">
         {/* Prominent Watermark */}
         <div className="cert-watermark">
-          GOVERNMENT OF CHHATTISGARH<br />
-          छत्तीसगढ़ शासन<br />
-          DEMO CERTIFICATE — NOT VALID FOR OFFICIAL USE
+          DOCUMENT DASH<br />
+          PRACTICE CERTIFICATE<br />
+          NOT VALID FOR OFFICIAL USE
         </div>
 
         {/* Certificate Header */}
         <div className="cert-header">
-          <div className="cert-emblem"><Icon as={Landmark} /></div>
+          <div className="cert-emblem"><Icon as={Award} /></div>
           <h2 className="cert-gov-title">
-            छत्तीसगढ़ शासन • GOVERNMENT OF CHHATTISGARH
+            {isEn ? 'DOCUMENT DASH • PRACTICE CERTIFICATE' : 'डॉक्यूमेंट डैश • अभ्यास प्रमाण पत्र'}
           </h2>
           <div className="cert-gov-sub">
             {isEn ? cert.authority_en : cert.authority_hi}
@@ -86,9 +89,9 @@ export default function CertificateModal({
           </div>
 
           <div className="cert-meta-item">
-            <strong>{isEn ? 'Verification Portal:' : 'सत्यापन पोर्टल:'}</strong>
+            <strong>{isEn ? 'Issued by:' : 'जारीकर्ता:'}</strong>
             <span className="cert-meta-portal">
-              Seva Setu (CHiPS)
+              {isEn ? 'Document Dash' : 'डॉक्यूमेंट डैश'}
             </span>
           </div>
         </div>
@@ -116,41 +119,40 @@ export default function CertificateModal({
         <div className="cert-footer-row">
           <div className="cert-qr-box">
             <div className="cert-qr-code">
-              SEVA SETU<br />
-              VERIFIED<br />
-              QR CODE
+              DOCUMENT<br />
+              DASH<br />
+              PRACTICE
             </div>
             <div className="cert-qr-caption">
-              Digitally verifiable on<br />
-              <strong>sevasetu.cg.gov.in</strong>
+              {isEn ? 'Learning game certificate' : 'शैक्षिक खेल प्रमाण पत्र'}<br />
+              <strong>{isEn ? 'Not an official document' : 'आधिकारिक दस्तावेज़ नहीं'}</strong>
             </div>
           </div>
 
           <div className="cert-sig-box">
             <div className="cert-sig-badge">
-              <Icon as={BadgeCheck} /> {isEn ? 'Digitally Signed by Authorized Officer' : 'अधिकृत अधिकारी द्वारा डिजिटल हस्ताक्षरित'}
+              <Icon as={BadgeCheck} /> {isEn ? 'Completed in Document Dash' : 'डॉक्यूमेंट डैश में पूर्ण'}
             </div>
             <div className="cert-sig-sub">
-              e-District Portal • Government of Chhattisgarh
+              {isEn ? 'For learning purposes only' : 'केवल सीखने के उद्देश्य से'}
             </div>
           </div>
         </div>
 
         {/* Action Buttons */}
         <div className="modal-actions-bar">
-          <button type="button" onClick={handlePrint} className="btn-secondary">
-            <Icon as={Printer} /> {isEn ? 'Print / Save as PDF' : 'प्रिंट / सेव करें'}
-          </button>
-          <button type="button" onClick={onClose} className="btn-secondary">
-            {isEn ? 'Close' : 'बंद करें'}
-          </button>
+          {PRINT_ENABLED && (
+            <button type="button" onClick={handlePrint} className="btn-secondary">
+              <Icon as={Printer} /> {isEn ? 'Print Certificate' : 'प्रमाण पत्र प्रिंट करें'}
+            </button>
+          )}
           <button
             type="button"
-            onClick={onContinue}
+            onClick={onClose}
             className="btn-primary"
             style={{ background: cert.gradient }}
           >
-            <Icon as={Gamepad2} /> {isEn ? 'Continue Document Quest' : 'क्वेस्ट जारी रखें'}
+            <Icon as={ArrowLeft} /> {isEn ? 'Back to Score Card' : 'स्कोर कार्ड पर वापस'}
           </button>
         </div>
       </div>

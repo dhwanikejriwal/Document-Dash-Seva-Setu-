@@ -193,6 +193,11 @@
   --cert-income-rgb: var(--saffron-500-rgb);
   --cert-marriage: var(--rose-500);
   --cert-marriage-rgb: var(--rose-500-rgb);
+  /* Deeper shades for solid certificate fills, dark enough for white text */
+  --cert-domicile-solid: var(--blue-600);
+  --cert-caste-solid: var(--emerald-600);
+  --cert-income-solid: var(--orange-600);
+  --cert-marriage-solid: var(--rose-600);
   --color-unlocked: var(--gold-300);
   --color-unlocked-rgb: var(--gold-300-rgb);
 

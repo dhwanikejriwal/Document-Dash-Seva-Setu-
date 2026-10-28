@@ -6,6 +6,16 @@
   -webkit-user-select: none;
 }
 
+/* Touch kiosk hardening: no pinch/double-tap zoom, pull-to-refresh, long-press
+   callouts or tap flashes. Scroll areas still pan (the document slider uses pan-x). */
+html,
+body {
+  touch-action: pan-x pan-y;
+  overscroll-behavior: none;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+}
+
 body {
   font-family: var(--font-sans);
   background-color: var(--color-bg);
@@ -28,6 +38,6 @@ button, input, select, textarea {
   vertical-align: -0.125em;
 }
 
-h1, h2, h3, h4, .brand-font, .deck-title-text, .basket-cert-title {
+h1, h2, h3, h4, .deck-title-text, .basket-cert-title {
   letter-spacing: -0.01em;
 }

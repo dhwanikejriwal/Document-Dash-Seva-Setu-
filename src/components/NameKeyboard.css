@@ -1,0 +1,70 @@
+/* On-screen keyboard for name entry on the touch kiosk.
+   Keys are sized in "units" of one letter key so every row lines up at any width. */
+.vk {
+  --vk-gap: 8px;
+  --vk-unit: calc((100% - 9 * var(--vk-gap)) / 10);
+  display: flex;
+  flex-direction: column;
+  gap: var(--vk-gap);
+}
+
+.vk-row {
+  display: flex;
+  justify-content: center;
+  gap: var(--vk-gap);
+}
+
+.vk-key {
+  flex: 0 0 var(--vk-unit);
+  height: clamp(44px, 6.2vh, 64px);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: 1.5px solid var(--ink-200);
+  border-bottom-width: 3px;
+  border-radius: var(--radius-md);
+  background: var(--white);
+  color: var(--color-text);
+  font-size: var(--text-xl);
+  font-weight: var(--fw-bold);
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: transform 0.08s ease, background var(--dur-fast), border-color var(--dur-fast);
+}
+
+.vk-key:active:not(:disabled) {
+  transform: translateY(2px) scale(0.97);
+  background: var(--blue-100);
+  border-color: var(--blue-500);
+}
+
+.vk-key:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+/* Wider keys: n units plus the gaps they span */
+.vk-key--backspace {
+  flex-basis: calc(2 * var(--vk-unit) + var(--vk-gap));
+}
+
+.vk-key--clear {
+  flex-basis: calc(2 * var(--vk-unit) + var(--vk-gap));
+}
+
+.vk-key--space {
+  flex-basis: calc(5 * var(--vk-unit) + 4 * var(--vk-gap));
+}
+
+.vk-key--backspace,
+.vk-key--clear {
+  background: var(--ink-100);
+  font-size: var(--text-md);
+  color: var(--color-text-secondary);
+}
+
+.vk-key--space {
+  font-size: var(--text-md);
+  color: var(--color-text-secondary);
+}

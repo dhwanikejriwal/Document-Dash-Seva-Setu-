@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import * as THREE from 'three';
 
-export default function ThreeCanvas({ isScreensaver = false }) {
+export default function ThreeCanvas() {
   const mountRef = useRef(null);
   const mouseRef = useRef({ x: 0, y: 0 });
 
@@ -163,41 +163,30 @@ export default function ThreeCanvas({ isScreensaver = false }) {
       cursorLight.position.x = mouseRef.current.x * 6;
       cursorLight.position.y = mouseRef.current.y * 3 + 2.5;
 
-      ring1.rotation.z += delta * (isScreensaver ? 0.6 : 0.2);
-      ring2.rotation.z -= delta * (isScreensaver ? 0.45 : 0.15);
+      ring1.rotation.z += delta * 0.2;
+      ring2.rotation.z -= delta * 0.15;
 
-      // Particle speed increases in Screensaver mode (Warp speed!)
-      const particleSpeed = isScreensaver ? 1.2 : 0.2;
-      particles.rotation.y = time * (isScreensaver ? 0.08 : 0.025);
+      // Slowly drifting particles
+      particles.rotation.y = time * 0.025;
       const posArray = particles.geometry.attributes.position.array;
       for (let i = 1; i < posArray.length; i += 3) {
-        posArray[i] -= delta * particleSpeed;
+        posArray[i] -= delta * 0.2;
         if (posArray[i] < 0) posArray[i] = 14;
       }
       particles.geometry.attributes.position.needsUpdate = true;
 
       // Card rotations
       ambientCards.forEach((c, idx) => {
-        const speedMultiplier = isScreensaver ? 2.5 : 1.0;
-        c.rotation.x += (0.005 + idx * 0.001) * speedMultiplier;
-        c.rotation.y += (0.006 + idx * 0.001) * speedMultiplier;
+        c.rotation.x += 0.005 + idx * 0.001;
+        c.rotation.y += 0.006 + idx * 0.001;
         c.position.y += Math.sin(time * 2 + idx) * 0.004;
       });
 
-      // Camera Orbit
-      if (isScreensaver) {
-        // Smooth 3D Cinematic Camera Fly-Through
-        camera.position.x = Math.sin(time * 0.35) * 5.5 + mouseRef.current.x * 1.5;
-        camera.position.y = 3.5 + Math.cos(time * 0.25) * 1.2 + mouseRef.current.y * 0.8;
-        camera.position.z = Math.cos(time * 0.35) * 5.5 + 8;
-        camera.lookAt(0, 1.8, 0);
-      } else {
-        // Gentle parallax follow
-        camera.position.x = mouseRef.current.x * 0.6;
-        camera.position.y = 4.5 + mouseRef.current.y * 0.4;
-        camera.position.z = 11;
-        camera.lookAt(0, 1.0, 0);
-      }
+      // Gentle parallax follow
+      camera.position.x = mouseRef.current.x * 0.6;
+      camera.position.y = 4.5 + mouseRef.current.y * 0.4;
+      camera.position.z = 11;
+      camera.lookAt(0, 1.0, 0);
 
       renderer.render(scene, camera);
     };
@@ -222,7 +211,7 @@ export default function ThreeCanvas({ isScreensaver = false }) {
       }
       renderer.dispose();
     };
-  }, [isScreensaver]);
+  }, []);
 
   return (
     <div

@@ -1,21 +1,21 @@
-.timer-chip, .timer-digits, .countdown-number-display, .terminal-start-cta,
-.screensaver-touch-beacon, .hud-counter, .timeup-slam-text, .terminal-tag-prefix,
-.basket-percentage-pill, .deck-count-pill, .screensaver-stats-strip {
+.timer-digits, .countdown-number-display, .terminal-start-cta,
+.timeup-slam-text, .basket-percentage-pill, .deck-count-pill {
   font-variant-numeric: tabular-nums;
   letter-spacing: 0.04em;
 }
 
-.cg-emblem-badge {
+/* Document Dash app logo */
+.app-logo-badge {
   width: 44px;
   height: 44px;
-  border-radius: 50%;
-  background: radial-gradient(circle, var(--saffron-400), var(--blue-500));
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 0 16px rgba(var(--saffron-400-rgb), 0.4);
-  border: 2px solid rgba(var(--white-rgb), 0.8);
-  animation: emblemRotateGlow 8s linear infinite;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(135deg, var(--blue-600), var(--cyan-400));
+  color: var(--white);
+  font-size: var(--text-2xl);
+  box-shadow: 0 6px 16px rgba(var(--blue-500-rgb), 0.35);
 }
 
 .icon-btn {
@@ -69,7 +69,7 @@
 }
 
 /* ========================================================
-   AUTHENTIC GOVERNMENT CERTIFICATE MODAL
+   CERTIFICATE MODAL
    ======================================================== */
 .cert-showcase-box {
   max-width: 780px;
@@ -140,21 +140,9 @@
   box-shadow: 0 8px 25px rgba(var(--saffron-500-rgb), 0.6);
 }
 
-@keyframes emblemRotateGlow {
-  0% { filter: drop-shadow(0 0 8px rgba(var(--blue-500-rgb), 0.4)); }
-  50% { filter: drop-shadow(0 0 16px rgba(var(--saffron-400-rgb), 0.7)); }
-  100% { filter: drop-shadow(0 0 8px rgba(var(--blue-500-rgb), 0.4)); }
-}
-
 @keyframes pulseOrb {
   0%, 100% { transform: scale(1); opacity: 1; }
   50% { transform: scale(1.4); opacity: 0.6; }
-}
-
-@keyframes mascotGrandFloat {
-  0% { transform: translateY(0) rotate(0deg); }
-  50% { transform: translateY(-6px) rotate(2deg); }
-  100% { transform: translateY(0) rotate(-2deg); }
 }
 
 @keyframes pulseGold {

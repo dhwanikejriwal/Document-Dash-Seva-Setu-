@@ -1,5 +1,5 @@
 import React from 'react';
-import { Timer, User, Award, Languages, Volume2, VolumeX, CircleHelp, Flag } from 'lucide-react';
+import { Timer, User, Award, Languages, Volume2, VolumeX, CircleHelp, Flag, FileCheck2 } from 'lucide-react';
 import Icon from './Icon';
 import './GameHUD.css';
 
@@ -27,21 +27,16 @@ export default function GameHUD({
     <header className="top-hud">
       {/* Brand Section */}
       <div className="brand-section">
-        <div className="cg-emblem-badge" title="Government of Chhattisgarh / छत्तीसगढ़ शासन">
-          <svg viewBox="0 0 100 100" width="28" height="28" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="50" cy="50" r="46" stroke="#ffffff" strokeWidth="2.5" opacity="0.6"/>
-            <circle cx="50" cy="50" r="41" stroke="#ffaa00" strokeWidth="2" strokeDasharray="4 2"/>
-            <path d="M50 14 L55 24 L66 20 L68 31 L79 32 L76 43 L85 49 L79 56 L85 64 L75 68 L76 79 L65 78 L61 88 L50 83 L39 88 L35 78 L24 79 L25 68 L15 64 L21 56 L15 49 L24 43 L21 32 L32 31 L34 20 L45 24 Z" fill="rgba(255, 170, 0, 0.25)" stroke="#00d2ff" strokeWidth="1.8"/>
-            <circle cx="50" cy="50" r="16" fill="#0077ff" stroke="#ffffff" strokeWidth="1.5"/>
-          </svg>
+        <div className="app-logo-badge" aria-hidden="true">
+          <Icon as={FileCheck2} />
         </div>
         <div className="brand-titles">
-          <h1 className="brand-main">SEVA SETU • DOCUMENT DASH</h1>
-          <span className="brand-sub">CHiPS • Government of Chhattisgarh</span>
+          <h1 className="brand-main">DOCUMENT DASH</h1>
+          <span className="brand-sub">{isEn ? 'Certificate document game' : 'प्रमाण पत्र दस्तावेज़ खेल'}</span>
         </div>
       </div>
 
-      {/* Center 45-Second Timer Pill */}
+      {/* Center Race Timer Pill */}
       <div className={`countdown-timer-pill ${isUrgent ? 'timer-urgent' : ''}`}>
         <span className="timer-icon"><Icon as={Timer} /></span>
         <span className="timer-digits">{timeFormatted}</span>

@@ -2,6 +2,8 @@
    AREA A: TOP FLOATING DOCUMENT BOXES
    ======================================================== */
 .top-prerequisites-deck-container {
+  /* Side lanes for the slider arrows, so they never cover a document */
+  --deck-gutter: 64px;
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -54,44 +56,62 @@
   border-radius: var(--radius-lg);
 }
 
-/* Slider controls */
-.deck-nav {
-  display: flex;
-  align-items: center;
-  gap: 6px;
+/* Slider arrows: glowing buttons centred on each side of the document list.
+   They sit outside the faded viewport so the edge fade doesn't dim them. */
+.deck-slider {
+  position: relative;
+  padding-inline: var(--deck-gutter);
 }
 
-.deck-nav-hint {
-  margin-right: 4px;
-  font-size: var(--text-3xs);
-  font-weight: var(--fw-semibold);
-  color: var(--ink-500);
-}
-
-.deck-nav-btn {
-  width: 32px;
-  height: 32px;
+.deck-arrow {
+  position: absolute;
+  top: 50%;
+  translate: 0 -50%;
+  z-index: 5;
+  width: 52px;
+  height: 52px;
   display: grid;
   place-items: center;
+  border: 2px solid var(--white);
   border-radius: 50%;
-  border: 1.5px solid rgba(var(--blue-500-rgb), 0.3);
-  background: var(--white);
-  color: var(--blue-600);
-  font-size: var(--text-lg);
-  cursor: pointer;
-  box-shadow: var(--shadow-sm);
-  transition: transform var(--dur-fast) var(--ease-out), background var(--dur-fast), color var(--dur-fast), opacity var(--dur-fast);
-}
-
-.deck-nav-btn:hover:not(:disabled) {
-  background: var(--blue-500);
+  background: linear-gradient(135deg, var(--blue-600), var(--cyan-400));
   color: var(--white);
-  transform: scale(1.06);
+  font-size: var(--text-3xl);
+  cursor: pointer;
+  touch-action: manipulation;
+  animation: deckArrowGlow 1.8s ease-in-out infinite;
+  transition: opacity var(--dur-base), transform var(--dur-fast) var(--ease-out);
 }
 
-.deck-nav-btn:disabled {
-  opacity: 0.35;
-  cursor: default;
+.deck-arrow--prev {
+  left: 2px;
+}
+
+.deck-arrow--next {
+  right: 2px;
+}
+
+.deck-arrow:hover {
+  transform: scale(1.08);
+}
+
+.deck-arrow:active {
+  transform: scale(0.94);
+}
+
+/* No more documents in that direction */
+.deck-arrow.is-hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+@keyframes deckArrowGlow {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(var(--cyan-400-rgb), 0.6), 0 6px 18px rgba(var(--blue-500-rgb), 0.35);
+  }
+  50% {
+    box-shadow: 0 0 0 12px rgba(var(--cyan-400-rgb), 0), 0 6px 26px rgba(var(--blue-500-rgb), 0.6);
+  }
 }
 
 /* Horizontal slider: two rows of documents scrolling along the x axis */
@@ -102,12 +122,13 @@
   mask-image: linear-gradient(90deg, transparent 0, var(--black) var(--fade-left), var(--black) calc(100% - var(--fade-right)), transparent 100%);
 }
 
+/* A light edge fade still hints that more documents continue past the edge */
 .deck-viewport.fade-left {
-  --fade-left: 48px;
+  --fade-left: 28px;
 }
 
 .deck-viewport.fade-right {
-  --fade-right: 48px;
+  --fade-right: 28px;
 }
 
 .floating-boxes-shelf {
@@ -143,7 +164,7 @@
 .deck-progress-track {
   position: relative;
   height: 4px;
-  margin: 0 6px;
+  margin: 0 calc(var(--deck-gutter) + 6px);
   border-radius: var(--radius-pill);
   background: rgba(var(--blue-500-rgb), 0.12);
   overflow: hidden;

@@ -193,111 +193,111 @@ export default function FloatingDocumentDeck({
             </span>
           </h2>
         </div>
-
-        <div className="deck-nav">
-          <span className="deck-nav-hint">
-            {isEn ? 'Swipe or scroll for more' : 'और दस्तावेज़ों के लिए स्वाइप करें'}
-          </span>
-          <button
-            type="button"
-            className="deck-nav-btn"
-            onClick={() => slide(-1)}
-            disabled={scroll.atStart}
-            aria-label={isEn ? 'Previous documents' : 'पिछले दस्तावेज़'}
-          >
-            <Icon as={ChevronLeft} />
-          </button>
-          <button
-            type="button"
-            className="deck-nav-btn"
-            onClick={() => slide(1)}
-            disabled={scroll.atEnd}
-            aria-label={isEn ? 'More documents' : 'अगले दस्तावेज़'}
-          >
-            <Icon as={ChevronRight} />
-          </button>
-        </div>
       </div>
 
-      {/* Horizontal slider: two rows of cards that scroll along the x axis */}
-      <div className={`deck-viewport ${scroll.atStart ? '' : 'fade-left'} ${scroll.atEnd ? '' : 'fade-right'}`}>
-        <div
-          ref={shelfRef}
-          className="floating-boxes-shelf"
-          onScroll={updateScroll}
-          onWheel={handleWheel}
-          tabIndex={0}
-          aria-label={isEn ? 'Prerequisite documents' : 'प्रमाण पत्र दस्तावेज़'}
+      {/* Horizontal slider: two rows of cards that scroll along the x axis.
+          Glowing arrows sit on each side, shown only when there is more to slide to. */}
+      <div className="deck-slider">
+        <button
+          type="button"
+          className={`deck-arrow deck-arrow--prev ${scroll.atStart ? 'is-hidden' : ''}`}
+          onClick={() => slide(-1)}
+          tabIndex={scroll.atStart ? -1 : 0}
+          aria-hidden={scroll.atStart || undefined}
+          aria-label={isEn ? 'Previous documents' : 'पिछले दस्तावेज़'}
         >
-          {documents.map((doc, index) => {
-            if (removedIds.has(doc.id)) return null;
-            const isSelected = selectedDocId === doc.id;
-            const isLeaving = !neededIds.has(doc.id);
-            const title = isEn ? doc.title_en : doc.title_hi;
+          <Icon as={ChevronLeft} />
+        </button>
+        <button
+          type="button"
+          className={`deck-arrow deck-arrow--next ${scroll.atEnd ? 'is-hidden' : ''}`}
+          onClick={() => slide(1)}
+          tabIndex={scroll.atEnd ? -1 : 0}
+          aria-hidden={scroll.atEnd || undefined}
+          aria-label={isEn ? 'More documents' : 'अगले दस्तावेज़'}
+        >
+          <Icon as={ChevronRight} />
+        </button>
 
-            // Check which certificates have already collected this doc
-            const collectedIn = CERTIFICATES.filter(cert =>
-              collectedByCertificate[cert.id]?.includes(doc.id)
-            );
+        <div className={`deck-viewport ${scroll.atStart ? '' : 'fade-left'} ${scroll.atEnd ? '' : 'fade-right'}`}>
+          <div
+            ref={shelfRef}
+            className="floating-boxes-shelf"
+            onScroll={updateScroll}
+            onWheel={handleWheel}
+            tabIndex={0}
+            aria-label={isEn ? 'Prerequisite documents' : 'प्रमाण पत्र दस्तावेज़'}
+          >
+            {documents.map((doc, index) => {
+              if (removedIds.has(doc.id)) return null;
+              const isSelected = selectedDocId === doc.id;
+              const isLeaving = !neededIds.has(doc.id);
+              const title = isEn ? doc.title_en : doc.title_hi;
 
-            // Stagger floating bobbing delay (by deck position, so it stays put as cards leave)
-            const animDelay = `${(index % 6) * 0.35}s`;
+              // Check which certificates have already collected this doc
+              const collectedIn = CERTIFICATES.filter(cert =>
+                collectedByCertificate[cert.id]?.includes(doc.id)
+              );
 
-            return (
-              <div
-                key={doc.id}
-                ref={el => (el ? cardRefs.current.set(doc.id, el) : cardRefs.current.delete(doc.id))}
-                className={`floating-doc-box ${isSelected ? 'box-selected' : ''} ${isLeaving ? 'box-leaving' : ''}`}
-                style={isLeaving ? undefined : { animationDelay: animDelay }}
-                aria-hidden={isLeaving || undefined}
-                draggable={!isLeaving}
-                onClick={() => onSelectDoc(isSelected ? null : doc.id)}
-                onDragStart={(e) => {
-                  e.dataTransfer.setData('text/plain', doc.id);
-                  e.dataTransfer.effectAllowed = 'move';
-                  onDragStartDoc(doc.id);
-                }}
-                onTouchStart={(e) => handleTouchStart(e, doc.id)}
-                onTouchMove={handleTouchMove}
-                onTouchEnd={handleTouchEnd}
-                onTouchCancel={handleTouchCancel}
-                title={title}
-              >
-                {/* Selected Badge */}
-                {isSelected && (
-                  <div className="box-selected-pill">
-                    <span><Icon as={Target} /> {isEn ? 'SELECTED' : 'चयनित'}</span>
-                  </div>
-                )}
+              // Stagger floating bobbing delay (by deck position, so it stays put as cards leave)
+              const animDelay = `${(index % 6) * 0.35}s`;
 
-                {/* Box Top */}
-                <div className="box-top-row">
-                  <div className="box-stamp-icon"><Icon as={doc.icon} /></div>
-                  <span className="box-tag-badge">
-                    {isEn ? doc.tag_en : doc.tag_hi}
-                  </span>
-                </div>
-
-                {/* Title Content */}
-                <div className="box-body-content">
-                  <h4 className="box-title-text">{title}</h4>
-                </div>
-
-                {/* Already Slotted Indicators */}
-                {collectedIn.length > 0 && (
-                  <div className="box-status-bar">
-                    <div className="box-collected-row">
-                      {collectedIn.map(c => (
-                        <span key={c.id} className="basket-deposited-pill" style={{ borderColor: c.color }}>
-                          <Icon as={Check} /> {isEn ? c.name_en.split(' ')[0] : c.name_hi.split(' ')[0]}
-                        </span>
-                      ))}
+              return (
+                <div
+                  key={doc.id}
+                  ref={el => (el ? cardRefs.current.set(doc.id, el) : cardRefs.current.delete(doc.id))}
+                  className={`floating-doc-box ${isSelected ? 'box-selected' : ''} ${isLeaving ? 'box-leaving' : ''}`}
+                  style={isLeaving ? undefined : { animationDelay: animDelay }}
+                  aria-hidden={isLeaving || undefined}
+                  draggable={!isLeaving}
+                  onClick={() => onSelectDoc(isSelected ? null : doc.id)}
+                  onDragStart={(e) => {
+                    e.dataTransfer.setData('text/plain', doc.id);
+                    e.dataTransfer.effectAllowed = 'move';
+                    onDragStartDoc(doc.id);
+                  }}
+                  onTouchStart={(e) => handleTouchStart(e, doc.id)}
+                  onTouchMove={handleTouchMove}
+                  onTouchEnd={handleTouchEnd}
+                  onTouchCancel={handleTouchCancel}
+                  title={title}
+                >
+                  {/* Selected Badge */}
+                  {isSelected && (
+                    <div className="box-selected-pill">
+                      <span><Icon as={Target} /> {isEn ? 'SELECTED' : 'चयनित'}</span>
                     </div>
+                  )}
+
+                  {/* Box Top */}
+                  <div className="box-top-row">
+                    <div className="box-stamp-icon"><Icon as={doc.icon} /></div>
+                    <span className="box-tag-badge">
+                      {isEn ? doc.tag_en : doc.tag_hi}
+                    </span>
                   </div>
-                )}
-              </div>
-            );
-          })}
+
+                  {/* Title Content */}
+                  <div className="box-body-content">
+                    <h4 className="box-title-text">{title}</h4>
+                  </div>
+
+                  {/* Already Slotted Indicators */}
+                  {collectedIn.length > 0 && (
+                    <div className="box-status-bar">
+                      <div className="box-collected-row">
+                        {collectedIn.map(c => (
+                          <span key={c.id} className="basket-deposited-pill" style={{ borderColor: c.color }}>
+                            <Icon as={Check} /> {isEn ? c.name_en.split(' ')[0] : c.name_hi.split(' ')[0]}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
         </div>
       </div>
 

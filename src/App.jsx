@@ -13,13 +13,20 @@ import FloatingDocumentDeck from './components/FloatingDocumentDeck';
 import CertificateModal from './components/CertificateModal';
 import ResultScoreCardModal from './components/ResultScoreCardModal';
 import HelpTutorialModal from './components/HelpTutorialModal';
-import ScreenSaver from './components/ScreenSaver';
 import {
   CertificateUnlockAnimation,
   TimeUpAnimation,
   ComboBurstBanner,
   MismatchAlert
 } from './components/ArcadeAnimations';
+
+// Length of one race, in seconds
+const RACE_SECONDS = 60;
+
+// Kiosk: with no touch for this long mid-round or on the score card, the participant
+// (whose name is on screen) is cleared and the kiosk returns to the start screen.
+const KIOSK_IDLE_SECONDS = 60;
+const ACTIVITY_EVENTS = ['pointerdown', 'keydown', 'touchstart'];
 
 // Fisher–Yates shuffle, so the deck never groups documents by certificate.
 const shuffle = (items) => {
@@ -32,13 +39,13 @@ const shuffle = (items) => {
 };
 
 export default function App() {
-  const [gameState, setGameState] = useState('welcome'); // 'welcome' | 'playing' | 'scorecard' | 'screensaver'
+  const [gameState, setGameState] = useState('welcome'); // 'welcome' | 'playing' | 'scorecard'
   const [participantName, setParticipantName] = useState('');
   const [lang, setLang] = useState('en');
   const [isAudioMuted, setIsAudioMuted] = useState(false);
 
-  // 45-Second Arcade Timer
-  const [timeLeft, setTimeLeft] = useState(45);
+  // Race Timer
+  const [timeLeft, setTimeLeft] = useState(RACE_SECONDS);
   const timerRef = useRef(null);
 
   // Arcade Animations States (Like 1-2-3 Countdown)
@@ -70,7 +77,7 @@ export default function App() {
   const [activeModal, setActiveModal] = useState('none'); // 'none' | 'certificate' | 'help'
   const [previewCertId, setPreviewCertId] = useState('domicile');
 
-  // 45-Second Timer Countdown (Pauses while modals are open)
+  // Race Timer Countdown (Pauses while modals are open)
   useEffect(() => {
     if (gameState === 'playing' && activeModal === 'none') {
       timerRef.current = setInterval(() => {
@@ -95,30 +102,34 @@ export default function App() {
     };
   }, [gameState, activeModal]);
 
-  // Idle Attract Mode / Screensaver Timer (Triggers after 25s of inactivity on Welcome screen)
+  // Kiosk watchdog for an abandoned round or score card (see KIOSK_IDLE_SECONDS)
+  const [idleSecondsLeft, setIdleSecondsLeft] = useState(KIOSK_IDLE_SECONDS);
   useEffect(() => {
-    if (gameState !== 'welcome') return;
+    if (gameState !== 'playing' && gameState !== 'scorecard') return;
 
-    let idleTimer;
-    const resetIdle = () => {
-      clearTimeout(idleTimer);
-      idleTimer = setTimeout(() => {
-        setGameState('screensaver');
-      }, 25000); // 25s idle threshold
-    };
-
-    resetIdle();
-    window.addEventListener('mousemove', resetIdle);
-    window.addEventListener('keydown', resetIdle);
-    window.addEventListener('touchstart', resetIdle);
+    const resetWatchdog = () => setIdleSecondsLeft(KIOSK_IDLE_SECONDS);
+    resetWatchdog();
+    const tick = setInterval(() => setIdleSecondsLeft(s => s - 1), 1000);
+    ACTIVITY_EVENTS.forEach(ev => window.addEventListener(ev, resetWatchdog));
 
     return () => {
-      clearTimeout(idleTimer);
-      window.removeEventListener('mousemove', resetIdle);
-      window.removeEventListener('keydown', resetIdle);
-      window.removeEventListener('touchstart', resetIdle);
+      clearInterval(tick);
+      ACTIVITY_EVENTS.forEach(ev => window.removeEventListener(ev, resetWatchdog));
     };
   }, [gameState]);
+
+  useEffect(() => {
+    if (idleSecondsLeft <= 0 && (gameState === 'playing' || gameState === 'scorecard')) {
+      handleNextParticipant();
+    }
+  }, [idleSecondsLeft]);
+
+  // Kiosk: a long press must not open the browser's context menu
+  useEffect(() => {
+    const blockContextMenu = (e) => e.preventDefault();
+    window.addEventListener('contextmenu', blockContextMenu);
+    return () => window.removeEventListener('contextmenu', blockContextMenu);
+  }, []);
 
   const handleTimeExpired = () => {
     sound.playTimeUp();
@@ -131,7 +142,7 @@ export default function App() {
     setCombo(1);
     setHighestCombo(1);
     setCorrectSortsCount(0);
-    setTimeLeft(45);
+    setTimeLeft(RACE_SECONDS);
     setCollectedByCertificate({
       domicile: [],
       caste: [],
@@ -161,9 +172,13 @@ export default function App() {
       income: [],
       marriage: []
     });
-    setTimeLeft(45);
+    setTimeLeft(RACE_SECONDS);
+    setSelectedDocId(null);
+    setActiveModal('none');
     setUnlockAnimCert(null);
     setIsTimeUpAnimActive(false);
+    setActiveComboBurst(null);
+    setMismatchAlert(null);
   };
 
   const handleRetrySameParticipant = () => {
@@ -286,15 +301,7 @@ export default function App() {
       style={{ position: 'relative', width: '100vw', height: '100vh', overflow: 'hidden' }}
     >
       {/* 3D Three.js Background Canvas */}
-      <ThreeCanvas isScreensaver={gameState === 'screensaver'} />
-
-      {/* Screen 0: Interactive Arcade Screensaver / Attract Mode */}
-      {gameState === 'screensaver' && (
-        <ScreenSaver
-          onWakeUp={() => setGameState('welcome')}
-          lang={lang}
-        />
-      )}
+      <ThreeCanvas />
 
       {/* Screen 1: Welcome & Participant Registration */}
       {gameState === 'welcome' && (
@@ -304,14 +311,13 @@ export default function App() {
           onToggleLang={handleToggleLang}
           isAudioMuted={isAudioMuted}
           onToggleAudio={handleToggleAudio}
-          onTriggerScreensaver={() => setGameState('screensaver')}
         />
       )}
 
-      {/* Screen 2: Active 45s Game Play Overlay (Clean & Uncluttered!) */}
+      {/* Screen 2: Active Game Play Overlay (Clean & Uncluttered!) */}
       {gameState === 'playing' && (
         <main id="app-overlay">
-          {/* Top HUD with 45s Timer & Participant Badge */}
+          {/* Top HUD with Race Timer & Participant Badge */}
           <GameHUD
             participantName={participantName}
             timeLeft={timeLeft}
@@ -349,8 +355,8 @@ export default function App() {
                 isUnlocked={unlockedCertificates.includes(cert.id)}
                 lang={lang}
                 onDropDoc={handleDropDoc}
+                hasSelectedDoc={!!selectedDocId}
                 onBucketClick={handleBucketClick}
-                onViewCertificate={handleViewCertificate}
               />
             ))}
           </section>
@@ -368,6 +374,7 @@ export default function App() {
           timeExpired={timeLeft === 0}
           lang={lang}
           onViewCertificate={handleViewCertificate}
+          idleSecondsLeft={idleSecondsLeft}
           onNextParticipant={handleNextParticipant}
           onRetry={handleRetrySameParticipant}
         />
@@ -383,14 +390,11 @@ export default function App() {
           certificate={unlockAnimCert}
           lang={lang}
           onFinish={() => {
-            const certId = unlockAnimCert.id;
+            // Celebrate and keep racing; certificates are shown on the score card at the end
             setUnlockAnimCert(null);
-            if (unlockedCertificates.length === 4) {
+            if (unlockedCertificates.length === CERTIFICATES.length) {
               clearInterval(timerRef.current);
               setGameState('scorecard');
-            } else {
-              setPreviewCertId(certId);
-              setActiveModal('certificate');
             }
           }}
         />
@@ -427,7 +431,6 @@ export default function App() {
           participantName={participantName}
           lang={lang}
           onClose={() => setActiveModal('none')}
-          onContinue={() => setActiveModal('none')}
         />
       )}
 

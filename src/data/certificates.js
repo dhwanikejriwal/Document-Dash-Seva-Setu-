@@ -1,7 +1,6 @@
 import { House, ShieldCheck, IndianRupee, HeartHandshake } from "lucide-react";
 
-// Official Seva Setu Certificate Prerequisite Data Model
-// Aligned with the official Government of Chhattisgarh e-District / CHiPS tables.
+// Certificate Prerequisite Data Model, aligned with the official prerequisite tables.
 // Each requirement is one row of the table (document type, serial = क्रम सं);
 // any one of its supporting documents (docIds) satisfies it.
 
@@ -15,6 +14,7 @@ export const CERTIFICATES = [
     subtitle_en: "Affidavit + 15-Yr Residence Proof + Educational Certificate",
     subtitle_hi: "शपथ पत्र + १५ वर्ष निवास प्रमाण + शैक्षणिक प्रमाण पत्र",
     color: "var(--cert-domicile)",
+    solid: "var(--cert-domicile-solid)",
     gradient: "linear-gradient(135deg, var(--blue-600), var(--cyan-400))",
     glowColor: "rgba(var(--cert-domicile-rgb), 0.45)",
     icon: House,
@@ -71,6 +71,7 @@ export const CERTIFICATES = [
     subtitle_en: "Affidavit + Income Proof + OBC Proof",
     subtitle_hi: "शपथ पत्र + आय प्रमाण + अ.पि.व. प्रमाण",
     color: "var(--cert-caste)",
+    solid: "var(--cert-caste-solid)",
     gradient: "linear-gradient(135deg, var(--green-600), var(--green-400))",
     glowColor: "rgba(var(--cert-caste-rgb), 0.45)",
     icon: ShieldCheck,
@@ -134,6 +135,7 @@ export const CERTIFICATES = [
     subtitle_en: "Affidavit + Income Proof",
     subtitle_hi: "शपथ पत्र + आय प्रमाण",
     color: "var(--cert-income)",
+    solid: "var(--cert-income-solid)",
     gradient: "linear-gradient(135deg, var(--saffron-600), var(--gold-500))",
     glowColor: "rgba(var(--cert-income-rgb), 0.45)",
     icon: IndianRupee,
@@ -169,6 +171,7 @@ export const CERTIFICATES = [
     subtitle_en: "Affidavit + Joint Photo + Birth Certificates + Signed Documents + Challan + Invitation Card",
     subtitle_hi: "शपथ पत्र + संयुक्त फोटो + जन्म प्रमाण पत्र + हस्ताक्षरित दस्तावेज + चालान + आमंत्रण पत्र",
     color: "var(--cert-marriage)",
+    solid: "var(--cert-marriage-solid)",
     gradient: "linear-gradient(135deg, var(--rose-600), var(--pink-500))",
     glowColor: "rgba(var(--cert-marriage-rgb), 0.45)",
     icon: HeartHandshake,

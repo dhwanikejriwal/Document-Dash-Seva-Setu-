@@ -12,20 +12,20 @@ export default function HelpTutorialModal({ lang = 'en', onClose }) {
       <div className="cert-showcase-box help-guide-box">
         <div className="cert-header">
           <h2 className="cert-gov-title">
-            <Icon as={ClipboardList} /> {isEn ? 'Seva Setu Certificate Prerequisite Guide' : 'सेवा सेतु प्रमाण पत्र नियम मार्गदर्शिका'}
+            <Icon as={ClipboardList} /> {isEn ? 'Certificate Document Guide' : 'प्रमाण पत्र दस्तावेज़ मार्गदर्शिका'}
           </h2>
           <div className="cert-gov-sub">
             {isEn
-              ? 'Government of Chhattisgarh Official Citizen Guidelines'
-              : 'छत्तीसगढ़ शासन के आधिकारिक नागरिक सेवा नियम'}
+              ? 'The documents each certificate needs'
+              : 'हर प्रमाण पत्र के लिए आवश्यक दस्तावेज़'}
           </div>
         </div>
 
         <div className="help-guide-body">
           <p className="help-guide-intro">
             {isEn
-              ? 'In Document Quest, you learn which documents belong to each of the 4 statutory certificates in Chhattisgarh:'
-              : 'डॉक्यूमेंट क्वेस्ट में आप सीखते हैं कि छत्तीसगढ़ के ४ प्रमुख प्रमाण पत्रों के लिए कौन-से दस्तावेज़ अनिवार्य हैं:'}
+              ? 'In Document Dash, you learn which documents belong to each of the 4 statutory certificates in Chhattisgarh:'
+              : 'डॉक्यूमेंट डैश में आप सीखते हैं कि छत्तीसगढ़ के ४ प्रमुख प्रमाण पत्रों के लिए कौन-से दस्तावेज़ अनिवार्य हैं:'}
           </p>
 
           <div className="help-cert-grid">
@@ -50,6 +50,11 @@ export default function HelpTutorialModal({ lang = 'en', onClose }) {
           <div className="help-tips">
             <strong><Icon as={Lightbulb} /> {isEn ? 'Pro Citizen Tips:' : 'नागरिक सुझाव:'}</strong>
             <ul>
+              <li>
+                {isEn
+                  ? 'Stuck? Hover over or tap a certificate basket to see the documents it needs.'
+                  : 'अटक गए? किसी प्रमाण पत्र बास्केट पर होवर या टैप करें और आवश्यक दस्तावेज़ देखें।'}
+              </li>
               <li>
                 {isEn
                   ? 'One supporting document per type is enough: any one income proof completes "Income Proof".'

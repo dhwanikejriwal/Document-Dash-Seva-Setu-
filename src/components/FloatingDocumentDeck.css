@@ -111,6 +111,8 @@
 }
 
 .floating-boxes-shelf {
+  /* Cards measure their positions against the shelf when sliding into gaps */
+  position: relative;
   display: grid;
   grid-auto-flow: column;
   grid-template-rows: repeat(2, auto);
@@ -190,6 +192,19 @@
   transform: translateY(-4px) scale(1.03) !important;
   animation-play-state: paused;
   background: var(--amber-50) !important;
+}
+
+/* A document no longer needed fades out before leaving the shelf (LEAVE_MS in the component) */
+.floating-doc-box.box-leaving {
+  animation: docLeave 0.35s var(--ease-out) forwards;
+  pointer-events: none;
+}
+
+@keyframes docLeave {
+  to {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.8);
+  }
 }
 
 .box-selected-pill {

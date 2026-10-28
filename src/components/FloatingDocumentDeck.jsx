@@ -1,8 +1,11 @@
-import React, { useRef, useState, useEffect, useCallback } from 'react';
+import React, { useRef, useState, useEffect, useLayoutEffect, useCallback } from 'react';
 import { FolderOpen, Target, Check, ChevronLeft, ChevronRight } from 'lucide-react';
-import { CERTIFICATES } from '../data/certificates';
+import { CERTIFICATES, isDocumentStillNeeded } from '../data/certificates';
 import Icon from './Icon';
 import './FloatingDocumentDeck.css';
+
+// Matches the docLeave animation in FloatingDocumentDeck.css
+const LEAVE_MS = 350;
 
 export default function FloatingDocumentDeck({
   documents = [],
@@ -17,6 +20,51 @@ export default function FloatingDocumentDeck({
   const shelfRef = useRef(null);
   const touchRef = useRef(null);
   const [scroll, setScroll] = useState({ atStart: true, atEnd: false, progress: 0, visible: 1 });
+
+  // Cards leave the shelf once every requirement they could fill is filled:
+  // they fade out first, then drop out of the grid.
+  const [removedIds, setRemovedIds] = useState(() => new Set());
+  const removalTimers = useRef(new Map());
+  const neededIds = new Set(
+    documents.filter(doc => isDocumentStillNeeded(doc.id, collectedByCertificate)).map(doc => doc.id)
+  );
+  const shownDocs = documents.filter(doc => !removedIds.has(doc.id));
+  const shownKey = shownDocs.map(doc => doc.id).join('|');
+
+  useEffect(() => {
+    shownDocs.forEach(doc => {
+      if (neededIds.has(doc.id) || removalTimers.current.has(doc.id)) return;
+      removalTimers.current.set(doc.id, setTimeout(() => {
+        removalTimers.current.delete(doc.id);
+        setRemovedIds(prev => new Set(prev).add(doc.id));
+      }, LEAVE_MS));
+    });
+  });
+
+  useEffect(() => {
+    const timers = removalTimers.current;
+    return () => timers.forEach(clearTimeout);
+  }, []);
+
+  // When cards drop out, slide the rest from their old spots into the gap (FLIP).
+  // `composite: 'add'` layers the slide on top of each card's floating animation.
+  const cardRefs = useRef(new Map());
+  const lastPositions = useRef(new Map());
+  useLayoutEffect(() => {
+    const positions = new Map();
+    cardRefs.current.forEach((card, id) => {
+      const pos = { x: card.offsetLeft, y: card.offsetTop };
+      positions.set(id, pos);
+      const prev = lastPositions.current.get(id);
+      if (prev && (prev.x !== pos.x || prev.y !== pos.y)) {
+        card.animate(
+          [{ transform: `translate(${prev.x - pos.x}px, ${prev.y - pos.y}px)` }, { transform: 'translate(0, 0)' }],
+          { duration: 450, easing: 'cubic-bezier(0.16, 1, 0.3, 1)', composite: 'add' }
+        );
+      }
+    });
+    lastPositions.current = positions;
+  }, [shownKey]);
 
   // Track the slider position for the arrows, edge fades and progress bar
   const updateScroll = useCallback(() => {
@@ -35,7 +83,7 @@ export default function FloatingDocumentDeck({
     updateScroll();
     window.addEventListener('resize', updateScroll);
     return () => window.removeEventListener('resize', updateScroll);
-  }, [updateScroll, documents.length]);
+  }, [updateScroll, shownKey]);
 
   const slide = (direction) => {
     const shelf = shelfRef.current;
@@ -140,7 +188,9 @@ export default function FloatingDocumentDeck({
           <h2 className="deck-title-text">
             <Icon as={FolderOpen} />
             <span>{isEn ? 'Floating Prerequisite Documents' : 'प्रमाण पत्र दस्तावेज़'}</span>
-            <span className="deck-count-pill">{documents.length}</span>
+            <span className="deck-count-pill" title={isEn ? 'Documents still needed' : 'शेष आवश्यक दस्तावेज़'}>
+              {neededIds.size}
+            </span>
           </h2>
         </div>
 
@@ -180,7 +230,9 @@ export default function FloatingDocumentDeck({
           aria-label={isEn ? 'Prerequisite documents' : 'प्रमाण पत्र दस्तावेज़'}
         >
           {documents.map((doc, index) => {
+            if (removedIds.has(doc.id)) return null;
             const isSelected = selectedDocId === doc.id;
+            const isLeaving = !neededIds.has(doc.id);
             const title = isEn ? doc.title_en : doc.title_hi;
 
             // Check which certificates have already collected this doc
@@ -188,15 +240,17 @@ export default function FloatingDocumentDeck({
               collectedByCertificate[cert.id]?.includes(doc.id)
             );
 
-            // Stagger floating bobbing delay
+            // Stagger floating bobbing delay (by deck position, so it stays put as cards leave)
             const animDelay = `${(index % 6) * 0.35}s`;
 
             return (
               <div
                 key={doc.id}
-                className={`floating-doc-box ${isSelected ? 'box-selected' : ''}`}
-                style={{ animationDelay: animDelay }}
-                draggable
+                ref={el => (el ? cardRefs.current.set(doc.id, el) : cardRefs.current.delete(doc.id))}
+                className={`floating-doc-box ${isSelected ? 'box-selected' : ''} ${isLeaving ? 'box-leaving' : ''}`}
+                style={isLeaving ? undefined : { animationDelay: animDelay }}
+                aria-hidden={isLeaving || undefined}
+                draggable={!isLeaving}
                 onClick={() => onSelectDoc(isSelected ? null : doc.id)}
                 onDragStart={(e) => {
                   e.dataTransfer.setData('text/plain', doc.id);

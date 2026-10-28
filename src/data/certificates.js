@@ -205,3 +205,13 @@ export const metRequirementCount = (cert, collectedDocIds) =>
 
 export const isCertificateComplete = (cert, collectedDocIds) =>
   mandatoryRequirements(cert).every(req => isRequirementMet(req, collectedDocIds));
+
+// A document is still worth placing while it can fill an open requirement: one that has
+// no document yet, on a certificate that isn't complete. Once every requirement it
+// supports is filled (by it or by another document of the same type), it's done.
+export const isDocumentStillNeeded = (docId, collectedByCertificate) =>
+  CERTIFICATES.some(cert => {
+    const collected = collectedByCertificate[cert.id] || [];
+    if (isCertificateComplete(cert, collected)) return false;
+    return cert.requirements.some(req => req.docIds.includes(docId) && !isRequirementMet(req, collected));
+  });

@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { DOCUMENTS } from '../data/documents';
+import { Sparkles, Star, Trophy, ScrollText } from 'lucide-react';
+import { mandatoryRequirements, metRequirementCount } from '../data/certificates';
+import Icon from './Icon';
+import './CertificateBucket.css';
 
 export default function CertificateBucket({
   certificate,
@@ -14,10 +17,9 @@ export default function CertificateBucket({
   const [isBouncing, setIsBouncing] = useState(false);
   const isEn = lang === 'en';
 
-  const totalMandatory = certificate.mandatoryDocIds.length;
-  const collectedMandatoryCount = certificate.mandatoryDocIds.filter(id =>
-    collectedDocIds.includes(id)
-  ).length;
+  // Progress counts document types satisfied, not documents dropped
+  const totalMandatory = mandatoryRequirements(certificate).length;
+  const collectedMandatoryCount = metRequirementCount(certificate, collectedDocIds);
 
   const percentage = Math.round((collectedMandatoryCount / totalMandatory) * 100);
 
@@ -58,15 +60,15 @@ export default function CertificateBucket({
       <div
         className="basket-handle"
         style={{
-          borderColor: isUnlocked ? '#ffd700' : certificate.color,
+          borderColor: isUnlocked ? 'var(--color-unlocked)' : certificate.color,
           boxShadow: isUnlocked
-            ? '0 0 24px rgba(255, 215, 0, 0.7)'
+            ? '0 0 24px rgba(var(--color-unlocked-rgb), 0.7)'
             : `0 0 14px ${certificate.glowColor}`
         }}
       >
         <span
           className="basket-handle-grip"
-          style={{ background: isUnlocked ? 'linear-gradient(90deg, #ffd700, #ff8c00)' : certificate.color }}
+          style={{ background: isUnlocked ? 'linear-gradient(90deg, var(--gold-300), var(--saffron-400))' : certificate.color }}
         />
       </div>
 
@@ -85,16 +87,16 @@ export default function CertificateBucket({
         <div className="basket-rim">
           <div
             className="basket-rim-glow"
-            style={{ background: isUnlocked ? '#ffd700' : certificate.color }}
+            style={{ background: isUnlocked ? 'var(--color-unlocked)' : certificate.color }}
           />
           <div className="basket-rim-opening">
             {isDragOver ? (
               <span className="rim-drop-hint">
-                ✨ {isEn ? 'Drop Here!' : 'यहाँ छोड़ें!'}
+                <Icon as={Sparkles} /> {isEn ? 'Drop Here!' : 'यहाँ छोड़ें!'}
               </span>
             ) : isUnlocked ? (
               <span className="rim-status-hint unlocked-glow">
-                🌟 {isEn ? 'UNLOCKED' : 'अनलॉक'}
+                <Icon as={Star} /> {isEn ? 'UNLOCKED' : 'अनलॉक'}
               </span>
             ) : (
               <span className="rim-status-hint">
@@ -111,14 +113,14 @@ export default function CertificateBucket({
             <div
               className="basket-badge-icon"
               style={{
-                borderColor: isUnlocked ? '#ffd700' : certificate.color,
-                background: isUnlocked ? 'rgba(255, 215, 0, 0.2)' : 'rgba(0, 0, 0, 0.4)'
+                borderColor: isUnlocked ? 'var(--color-unlocked)' : certificate.color,
+                background: isUnlocked ? 'rgba(var(--color-unlocked-rgb), 0.2)' : 'rgba(var(--black-rgb), 0.4)'
               }}
             >
-              <span>{certificate.icon}</span>
+              <Icon as={certificate.icon} />
             </div>
             <div className="basket-titles">
-              <h3 className="basket-cert-title" style={{ color: isUnlocked ? '#ffd700' : 'var(--text-main)' }}>
+              <h3 className="basket-cert-title" style={{ color: isUnlocked ? 'var(--color-unlocked)' : 'var(--color-text)' }}>
                 {isEn ? certificate.name_en : certificate.name_hi}
               </h3>
             </div>
@@ -131,7 +133,7 @@ export default function CertificateBucket({
               style={{
                 height: `${Math.max(percentage, 10)}%`,
                 background: isUnlocked
-                  ? 'linear-gradient(180deg, #ffd700, #ff8c00)'
+                  ? 'linear-gradient(180deg, var(--gold-300), var(--saffron-400))'
                   : certificate.gradient
               }}
             >
@@ -142,7 +144,7 @@ export default function CertificateBucket({
             {isUnlocked && (
               <div className="gauge-overlay-text">
                 <div className="unlocked-burst-prompt">
-                  <span>🏆</span>
+                  <Icon as={Trophy} />
                   <strong>{isEn ? 'READY!' : 'तैयार!'}</strong>
                 </div>
               </div>
@@ -157,7 +159,7 @@ export default function CertificateBucket({
                 style={{
                   width: `${percentage}%`,
                   background: isUnlocked
-                    ? 'linear-gradient(90deg, #ffd700, #ffaa00)'
+                    ? 'linear-gradient(90deg, var(--gold-300), var(--gold-500))'
                     : certificate.gradient
                 }}
               />
@@ -165,7 +167,7 @@ export default function CertificateBucket({
 
             <div
               className="basket-percentage-pill"
-              style={{ color: isUnlocked ? '#ffd700' : certificate.color }}
+              style={{ color: isUnlocked ? 'var(--color-unlocked)' : certificate.color }}
             >
               <strong>{percentage}%</strong>
             </div>
@@ -181,7 +183,7 @@ export default function CertificateBucket({
                 onViewCertificate(certificate.id);
               }}
             >
-              📜 {isEn ? 'VIEW CERTIFICATE' : 'प्रमाण पत्र देखें'}
+              <Icon as={ScrollText} /> {isEn ? 'VIEW CERTIFICATE' : 'प्रमाण पत्र देखें'}
             </button>
           )}
         </div>

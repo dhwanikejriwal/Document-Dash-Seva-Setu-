@@ -1,6 +1,9 @@
 import React from 'react';
+import { Landmark, User, BadgeCheck, Printer, Gamepad2 } from 'lucide-react';
 import { CERTIFICATES } from '../data/certificates';
 import { DOCUMENTS } from '../data/documents';
+import Icon from './Icon';
+import './CertificateModal.css';
 
 export default function CertificateModal({
   certificateId,
@@ -43,7 +46,7 @@ export default function CertificateModal({
 
         {/* Certificate Header */}
         <div className="cert-header">
-          <div className="cert-emblem">🏛️</div>
+          <div className="cert-emblem"><Icon as={Landmark} /></div>
           <h2 className="cert-gov-title">
             छत्तीसगढ़ शासन • GOVERNMENT OF CHHATTISGARH
           </h2>
@@ -57,22 +60,22 @@ export default function CertificateModal({
               color: cert.color
             }}
           >
-            {cert.icon} {isEn ? cert.name_en.toUpperCase() : cert.name_hi}
+            <Icon as={cert.icon} /> {isEn ? cert.name_en.toUpperCase() : cert.name_hi}
           </div>
         </div>
 
         {/* Meta Grid */}
-        <div className="cert-meta-grid" style={{ gridTemplateColumns: 'repeat(4, 1fr)' }}>
+        <div className="cert-meta-grid">
           <div className="cert-meta-item">
             <strong>{isEn ? 'Applicant / आवेदक:' : 'आवेदक का नाम:'}</strong>
-            <span style={{ fontWeight: 800, color: '#1e293b' }}>
-              👤 {participantName}
+            <span className="cert-meta-applicant">
+              <Icon as={User} /> {participantName}
             </span>
           </div>
 
           <div className="cert-meta-item">
             <strong>{isEn ? 'Certificate / App No:' : 'प्रमाण पत्र / आवेदन क्र:'}</strong>
-            <span style={{ fontFamily: 'monospace', fontWeight: 700, color: '#b45309' }}>
+            <span className="cert-meta-appno">
               {appNo}
             </span>
           </div>
@@ -84,7 +87,7 @@ export default function CertificateModal({
 
           <div className="cert-meta-item">
             <strong>{isEn ? 'Verification Portal:' : 'सत्यापन पोर्टल:'}</strong>
-            <span style={{ color: '#0077ff', fontWeight: 600 }}>
+            <span className="cert-meta-portal">
               Seva Setu (CHiPS)
             </span>
           </div>
@@ -92,17 +95,17 @@ export default function CertificateModal({
 
         {/* Certificate Body Text */}
         <div className="cert-body-text">
-          <p style={{ marginBottom: '8px' }}>
+          <p className="cert-body-lead">
             {isEn
               ? `This certifies that citizen applicant "${participantName}" has satisfied all statutory eligibility criteria. ${cert.statutoryClause_en}`
               : `प्रमाणित किया जाता है कि नागरिक आवेदक "${participantName}" ने सभी वैधानिक अर्हताएं पूर्ण की हैं। ${cert.statutoryClause_hi}`}
           </p>
-          <div style={{ background: '#f1f5f9', padding: '8px 12px', borderRadius: '6px', fontSize: '12px' }}>
+          <div className="cert-verified-box">
             <strong>{isEn ? 'Verified Prerequisites Collected:' : 'सत्यापित संलग्न दस्तावेज़:'}</strong>
-            <ul style={{ paddingLeft: '18px', marginTop: '4px' }}>
+            <ul>
               {collectedDocObjects.map(d => (
                 <li key={d.id}>
-                  {d.icon} {isEn ? d.title_en : d.title_hi} — <span style={{ color: '#059669', fontWeight: 600 }}>{isEn ? 'Verified' : 'सत्यापित'}</span>
+                  <Icon as={d.icon} /> {isEn ? d.title_en : d.title_hi} — <span className="cert-verified-tag">{isEn ? 'Verified' : 'सत्यापित'}</span>
                 </li>
               ))}
             </ul>
@@ -117,7 +120,7 @@ export default function CertificateModal({
               VERIFIED<br />
               QR CODE
             </div>
-            <div style={{ fontSize: '11px', color: '#64748b', lineHeight: 1.3 }}>
+            <div className="cert-qr-caption">
               Digitally verifiable on<br />
               <strong>sevasetu.cg.gov.in</strong>
             </div>
@@ -125,9 +128,9 @@ export default function CertificateModal({
 
           <div className="cert-sig-box">
             <div className="cert-sig-badge">
-              <span>✅</span> {isEn ? 'Digitally Signed by Authorized Officer' : 'अधिकृत अधिकारी द्वारा डिजिटल हस्ताक्षरित'}
+              <Icon as={BadgeCheck} /> {isEn ? 'Digitally Signed by Authorized Officer' : 'अधिकृत अधिकारी द्वारा डिजिटल हस्ताक्षरित'}
             </div>
-            <div style={{ fontSize: '10px', color: '#94a3b8', marginTop: '2px' }}>
+            <div className="cert-sig-sub">
               e-District Portal • Government of Chhattisgarh
             </div>
           </div>
@@ -136,7 +139,7 @@ export default function CertificateModal({
         {/* Action Buttons */}
         <div className="modal-actions-bar">
           <button type="button" onClick={handlePrint} className="btn-secondary">
-            🖨️ {isEn ? 'Print / Save as PDF' : 'प्रिंट / सेव करें'}
+            <Icon as={Printer} /> {isEn ? 'Print / Save as PDF' : 'प्रिंट / सेव करें'}
           </button>
           <button type="button" onClick={onClose} className="btn-secondary">
             {isEn ? 'Close' : 'बंद करें'}
@@ -147,7 +150,7 @@ export default function CertificateModal({
             className="btn-primary"
             style={{ background: cert.gradient }}
           >
-            🎮 {isEn ? 'Continue Document Quest' : 'क्वेस्ट जारी रखें'}
+            <Icon as={Gamepad2} /> {isEn ? 'Continue Document Quest' : 'क्वेस्ट जारी रखें'}
           </button>
         </div>
       </div>

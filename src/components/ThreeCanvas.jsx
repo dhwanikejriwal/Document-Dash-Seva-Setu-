@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import * as THREE from 'three';
 
-export default function ThreeCanvas({ isScreensaver = false, theme = 'light' }) {
+export default function ThreeCanvas({ isScreensaver = false }) {
   const mountRef = useRef(null);
   const mouseRef = useRef({ x: 0, y: 0 });
 
@@ -9,13 +9,12 @@ export default function ThreeCanvas({ isScreensaver = false, theme = 'light' }) 
     const container = mountRef.current;
     if (!container) return;
 
-    const isLight = true; // Always bright light theme
     const width = container.clientWidth || window.innerWidth;
     const height = container.clientHeight || window.innerHeight;
 
     // 1. Scene with Adaptive Fog
     const scene = new THREE.Scene();
-    scene.fog = new THREE.FogExp2(isLight ? 0xe0f2fe : 0x060b18, 0.03);
+    scene.fog = new THREE.FogExp2(0xe0f2fe, 0.03);
 
     // 2. Camera
     const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 100);
@@ -27,11 +26,11 @@ export default function ThreeCanvas({ isScreensaver = false, theme = 'light' }) 
     renderer.setSize(width, height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = isLight ? 1.35 : 1.25;
+    renderer.toneMappingExposure = 1.35;
     container.appendChild(renderer.domElement);
 
     // 4. Vibrant Cyber Lighting
-    const ambientLight = new THREE.AmbientLight(isLight ? 0xf8fafc : 0x1e293b, isLight ? 2.4 : 1.8);
+    const ambientLight = new THREE.AmbientLight(0xf8fafc, 2.4);
     scene.add(ambientLight);
 
     const mainLight = new THREE.DirectionalLight(0xffffff, 2.0);
@@ -54,16 +53,16 @@ export default function ThreeCanvas({ isScreensaver = false, theme = 'light' }) 
     // 5. Grid Floor
     const floorGeo = new THREE.PlaneGeometry(50, 50);
     const floorMat = new THREE.MeshStandardMaterial({
-      color: isLight ? 0xf1f5f9 : 0x070d1e,
-      roughness: isLight ? 0.4 : 0.25,
-      metalness: isLight ? 0.3 : 0.9
+      color: 0xf1f5f9,
+      roughness: 0.4,
+      metalness: 0.3
     });
     const floor = new THREE.Mesh(floorGeo, floorMat);
     floor.rotation.x = -Math.PI / 2;
     floor.position.y = -0.05;
     scene.add(floor);
 
-    const grid = new THREE.GridHelper(36, 36, isLight ? 0x0284c7 : 0x00d2ff, isLight ? 0xcfd8dc : 0x132342);
+    const grid = new THREE.GridHelper(36, 36, 0x0284c7, 0xcfd8dc);
     grid.position.y = 0.01;
     scene.add(grid);
 
@@ -223,7 +222,7 @@ export default function ThreeCanvas({ isScreensaver = false, theme = 'light' }) 
       }
       renderer.dispose();
     };
-  }, [isScreensaver, theme]);
+  }, [isScreensaver]);
 
   return (
     <div

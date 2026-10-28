@@ -1,0 +1,155 @@
+/* ========================================================
+   TOP HUD
+   ======================================================== */
+.top-hud {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  background: rgba(var(--white-rgb), 0.94);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 2px solid rgba(var(--blue-500-rgb), 0.18);
+  border-radius: var(--radius-2xl);
+  padding: 8px 20px;
+  box-shadow: 0 8px 30px rgba(var(--blue-800-rgb), 0.1), 0 0 20px rgba(var(--blue-500-rgb), 0.08);
+}
+
+.brand-section {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.brand-titles {
+  display: flex;
+  flex-direction: column;
+}
+
+.brand-main {
+  font-size: var(--text-xl);
+  font-weight: var(--fw-heavy);
+  letter-spacing: 0.5px;
+  background: linear-gradient(90deg, var(--saffron-600), var(--blue-600), var(--green-500));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.brand-sub {
+  font-size: var(--text-xs);
+  color: var(--ink-600);
+  font-weight: var(--fw-bold);
+  letter-spacing: 0.2px;
+}
+
+/* Center 45-Second Timer Pill */
+.countdown-timer-pill {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(var(--white-rgb), 0.98);
+  border: 2.5px solid var(--blue-500);
+  padding: 6px 22px;
+  border-radius: var(--radius-3xl);
+  box-shadow: 0 0 20px rgba(var(--blue-500-rgb), 0.25), 0 4px 12px rgba(var(--black-rgb), 0.06);
+  transition: all var(--dur-base);
+}
+
+.timer-icon {
+  font-size: var(--text-3xl);
+}
+
+.timer-digits {
+  font-size: var(--text-4xl);
+  font-weight: var(--fw-heavy);
+  color: var(--blue-600);
+  letter-spacing: 1.5px;
+}
+
+.countdown-timer-pill.timer-urgent {
+  border-color: var(--rose-500);
+  box-shadow: 0 0 25px rgba(var(--rose-500-rgb), 0.5);
+  animation: urgentPulse 0.5s infinite alternate;
+}
+
+.countdown-timer-pill.timer-urgent .timer-digits {
+  color: var(--rose-500);
+}
+
+/* Top HUD Stats Group */
+.hud-stats-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.participant-hud-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(var(--blue-500-rgb), 0.08);
+  border: 1.5px solid rgba(var(--blue-500-rgb), 0.25);
+  padding: 6px 16px;
+  border-radius: var(--radius-2xl);
+  font-size: var(--text-md);
+  font-weight: var(--fw-heavy);
+  color: var(--ink-950);
+  box-shadow: 0 2px 8px rgba(var(--black-rgb), 0.04);
+}
+
+.participant-hud-name {
+  max-width: 150px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--blue-600);
+  font-weight: var(--fw-heavy);
+}
+
+.target-cert-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(var(--green-500-rgb), 0.08);
+  border: 1.5px solid rgba(var(--green-500-rgb), 0.3);
+  padding: 6px 16px;
+  border-radius: var(--radius-2xl);
+  font-size: var(--text-md);
+  font-weight: var(--fw-heavy);
+  box-shadow: 0 2px 8px rgba(var(--black-rgb), 0.04);
+}
+
+.target-cert-pill .cert-name {
+  color: var(--ink-950);
+  font-weight: var(--fw-heavy);
+}
+
+.level-badge {
+  font-size: var(--text-2xs);
+  font-weight: var(--fw-heavy);
+  padding: 3px 10px;
+  border-radius: var(--radius-md);
+  background: var(--saffron-500);
+  color: var(--white);
+  letter-spacing: 0.5px;
+}
+
+.controls-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+@media (max-width: 600px) {
+  .top-hud {
+    padding: 6px 10px;
+  }
+  .brand-sub, .target-cert-pill {
+    display: none;
+  }
+}
+
+@keyframes urgentPulse {
+  0% { transform: scale(1); filter: brightness(1); }
+  100% { transform: scale(1.06); filter: brightness(1.2); }
+}

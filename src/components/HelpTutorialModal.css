@@ -1,0 +1,86 @@
+.cert-showcase-box.help-guide-box {
+  max-width: 720px;
+}
+
+.help-guide-body {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  font-size: var(--text-md);
+  line-height: 1.6;
+  color: var(--ink-800);
+}
+
+.help-guide-intro {
+  font-weight: var(--fw-semibold);
+}
+
+.help-cert-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.help-cert-card {
+  background: var(--ink-50);
+  border: 2px solid var(--cert-color);
+  border-radius: var(--radius-md);
+  padding: var(--space-3) 14px;
+  box-shadow: 0 4px 12px rgba(var(--black-rgb), 0.04);
+}
+
+.help-cert-title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-base);
+  font-weight: var(--fw-heavy);
+  color: var(--cert-color);
+}
+
+.help-cert-icon {
+  font-size: var(--text-xl);
+}
+
+.help-cert-sub {
+  margin-top: 6px;
+  font-size: var(--text-sm);
+  font-weight: var(--fw-semibold);
+  color: var(--ink-600);
+}
+
+.help-cert-count {
+  margin-top: 6px;
+  font-size: var(--text-xs);
+  font-weight: var(--fw-heavy);
+  color: var(--ink-950);
+}
+
+.help-tips {
+  background: var(--amber-100);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  border: 1.5px solid var(--amber-500);
+  font-size: var(--text-sm);
+  color: var(--amber-900);
+}
+
+.help-tips strong {
+  font-size: var(--text-sm);
+}
+
+.help-tips ul {
+  padding-left: var(--space-5);
+  margin-top: 6px;
+  line-height: 1.5;
+}
+
+.modal-actions-bar.help-guide-actions {
+  margin-top: var(--space-5);
+}
+
+.btn-primary.help-guide-cta {
+  margin: auto;
+  font-size: var(--text-base);
+  padding: var(--space-3) var(--space-8);
+}

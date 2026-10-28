@@ -1,164 +1,371 @@
-// Master Prerequisite Documents for Seva Setu Document Dash
-// 100% Extracted from Official Government of Chhattisgarh e-District / CHiPS Tables:
-// 1. Domicile Certificate (निवास प्रमाण पत्र)
-// 2. Caste Certificate (जाति प्रमाण पत्र)
-// 3. Income Certificate (आय प्रमाण पत्र)
-// 4. Marriage Certificate (विवाह प्रमाण पत्र)
+import {
+  ScrollText, BadgeIndianRupee, BriefcaseBusiness, IdCard, HandCoins, Receipt, ClipboardPen, Users,
+  GraduationCap, School, UserCheck, Stamp, Contact, BookOpen, FileBadge, LandPlot, BookUser, Library,
+  BookMarked, FileQuestionMark, Scale, Baby, Briefcase, Vote, House, FilePlus, Landmark, PlugZap,
+  NotebookPen, Backpack, FileSpreadsheet, Award, Microscope, FileClock, Medal, Wrench, Camera, Cake,
+  Signature, FilePenLine, ReceiptIndianRupee, MailOpen
+} from "lucide-react";
+
+// Supporting documents from the Seva Setu (CHiPS, Government of Chhattisgarh) prerequisite tables.
+// Which certificate accepts which document lives in certificates.js; the tag names the document type.
 
 export const DOCUMENTS = [
-  // 1. UNIVERSAL AFFIDAVIT (Mandatory across all 4 services: Table 1-4 Row 1/2)
+  // Affidavit (शपथ पत्र) — mandatory for all four certificates
   {
     id: "doc_affidavit",
-    title_en: "Statutory Affidavit (शपथ पत्र)",
-    title_hi: "वैधानिक शपथ पत्र (अधिवक्ता / नोटरी)",
-    icon: "📜",
-    tag: "All 4 Services",
-    tag_hi: "सभी ४ सेवाएं",
-    applicableCertificates: ["domicile", "caste", "income", "marriage"],
-    description_en: "Statutory Affidavit affirming factual eligibility as required in all 4 government services.",
-    description_hi: "सभी ४ सरकारी सेवाओं हेतु अनिवार्य नोटरी / कार्यपालक मजिस्ट्रेट शपथ पत्र।"
+    title_en: "Affidavit",
+    title_hi: "शपथ पत्र",
+    icon: ScrollText,
+    tag_en: "All certificates",
+    tag_hi: "सभी प्रमाण पत्र"
   },
 
-  // 2. DOMICILE: 15-YEAR STAY PROOF (Table 2 Row 3 - Mandatory: Yes)
+  // Income proof (आय प्रमाण) — Caste and Income certificates
   {
-    id: "doc_stay_15_proof",
-    title_en: "Proof of 15-Yr Stay (15 वर्ष निवास)",
-    title_hi: "१५ वर्ष निरंतर निवास प्रमाण (वोटर/रजिस्ट्री)",
-    icon: "🏠",
-    tag: "Domicile Proof",
-    tag_hi: "निवास प्रमाण",
-    applicableCertificates: ["domicile"],
-    description_en: "Voters Identity Card, Land & House Document, 15-Yr Electricity Bill, or Birth Certificate in CG.",
-    description_hi: "मतदाता परिचय पत्र, रजिस्ट्री, बिजली बिल, अथवा छत्तीसगढ़ में जन्म प्रमाण पत्र।"
+    id: "doc_patwari_income_certificate",
+    title_en: "Certificate from Patwari / Sarpanch / Parshad",
+    title_hi: "पटवारी / सरपंच / पार्षद से प्रमाण पत्र",
+    icon: BadgeIndianRupee,
+    tag_en: "Income proof",
+    tag_hi: "आय प्रमाण"
+  },
+  {
+    id: "doc_employer_income_form16",
+    title_en: "Employer's Income Certificate / Form 16",
+    title_hi: "नियोक्ता का आय प्रमाण पत्र / फार्म १६",
+    icon: BriefcaseBusiness,
+    tag_en: "Income proof",
+    tag_hi: "आय प्रमाण"
+  },
+  {
+    id: "doc_ration_card",
+    title_en: "Ration Card",
+    title_hi: "राशन कार्ड",
+    icon: IdCard,
+    tag_en: "Income · Residence proof",
+    tag_hi: "आय · निवास प्रमाण"
+  },
+  {
+    id: "doc_land_house_income",
+    title_en: "Income from Land / House",
+    title_hi: "भूमि / घर से आय",
+    icon: HandCoins,
+    tag_en: "Income proof",
+    tag_hi: "आय प्रमाण"
+  },
+  {
+    id: "doc_other_income_proof",
+    title_en: "Other Income Proof",
+    title_hi: "अन्य आय प्रमाण",
+    icon: Receipt,
+    tag_en: "Income proof",
+    tag_hi: "आय प्रमाण"
+  },
+  {
+    id: "doc_application_form",
+    title_en: "Application Form",
+    title_hi: "आवेदन प्रपत्र",
+    icon: ClipboardPen,
+    tag_en: "Income proof",
+    tag_hi: "आय प्रमाण"
+  },
+  {
+    id: "doc_family_members_income",
+    title_en: "Income of Other Family Members",
+    title_hi: "परिवार के अन्य सदस्यों की आय",
+    icon: Users,
+    tag_en: "Income proof",
+    tag_hi: "आय प्रमाण"
   },
 
-  // 3. DOMICILE: EDUCATIONAL CERTIFICATE (Table 2 Row 4 - Mandatory: Yes)
+  // Proof of Other Backward Class (अन्य पिछड़ा वर्ग का प्रमाण) — Caste certificate
   {
     id: "doc_educational_certificate",
-    title_en: "Educational Certificate (शैक्षणिक प्रमाण)",
-    title_hi: "शैक्षणिक अंकसूची (१०वीं / १२वीं / ८वीं)",
-    icon: "🎓",
-    tag: "Education",
-    tag_hi: "शिक्षा प्रमाण",
-    applicableCertificates: ["domicile"],
-    description_en: "High School (10th), Higher Secondary (12th), Middle (8th), or continuous study school marksheet.",
-    description_hi: "१०वीं/१२वीं/८वीं कक्षा की अंकसूची अथवा निरंतर अध्ययन प्रमाण पत्र।"
+    title_en: "Educational Certificate",
+    title_hi: "शैक्षणिक प्रमाण पत्र",
+    icon: GraduationCap,
+    tag_en: "OBC · Education proof",
+    tag_hi: "ओबीसी · शैक्षणिक प्रमाण"
   },
-
-  // 4. DOMICILE: 5-YEAR STAY PROOF (Table 2 Row 5 - Supporting: No)
   {
-    id: "doc_stay_5_proof",
-    title_en: "Proof of 5-Yr Stay (5 वर्ष निवास)",
-    title_hi: "५ वर्ष निवास प्रमाण (सेवा पुस्तिका/भूमि)",
-    icon: "🏡",
-    tag: "Domicile (5 Yr)",
-    tag_hi: "५ वर्ष निवास",
-    applicableCertificates: ["domicile"],
-    description_en: "Land & House Document or Person's Service Book for 5-year residency.",
-    description_hi: "भूमि व आवास दस्तावेज अथवा सेवा पुस्तिका (५ वर्ष निवास साक्ष्य)।"
+    id: "doc_primary_school_transfer",
+    title_en: "Primary School Transfer Certificate",
+    title_hi: "प्राथमिक स्कूल शिक्षा का स्थानांतरण प्रमाण पत्र",
+    icon: School,
+    tag_en: "OBC proof",
+    tag_hi: "ओबीसी प्रमाण"
   },
-
-  // 5. INCOME & CASTE: INCOME PROOF (Table 1 Row 2 & Table 4 Row 3 - Mandatory: Yes)
   {
-    id: "doc_income_proof",
-    title_en: "Income Proof (पटवारी/सरपंच/पार्षद आय)",
-    title_hi: "पटवारी / सरपंच / पार्षद आय प्रमाण प्रतिवेदन",
-    icon: "💰",
-    tag: "Income Verification",
-    tag_hi: "आय प्रमाण",
-    applicableCertificates: ["income", "caste"],
-    description_en: "Report from Patwari/Sarpanch/Parshad, Employer Form 16, or Land/House income proof.",
-    description_hi: "पटवारी, सरपंच अथवा पार्षद द्वारा जारी आय प्रमाण पत्र या फॉर्म १६।"
+    id: "doc_father_obc_certificate",
+    title_en: "Father's OBC Certificate",
+    title_hi: "पिता का अ.पि.व. प्रमाण पत्र",
+    icon: UserCheck,
+    tag_en: "OBC proof",
+    tag_hi: "ओबीसी प्रमाण"
   },
-
-  // 6. CASTE: MISAL / ADHIKAR ABHILEKH / CASTE PROOF (Table 4 Row 4 - Mandatory: Yes)
   {
-    id: "doc_caste_obc_misal",
-    title_en: "Caste Misal / Adhikar Abhilekh Record",
-    title_hi: "मिसल बंदोबस्त / अधिकार अभिलेख / जाति साक्ष्य",
-    icon: "🛡️",
-    tag: "Caste Record",
-    tag_hi: "जाति साक्ष्य",
-    applicableCertificates: ["caste"],
-    description_en: "Pre-1950/1984 Misal record, Jamabandi, Dakhil/Kharij Panji, or Father's Caste Certificate.",
-    description_hi: "मिसल बंदोबस्त, अधिकार अभिलेख, जमाबंदी अथवा पिता का जाति प्रमाण पत्र।"
+    id: "doc_sarpanch_obc_certificate",
+    title_en: "OBC Certificate from Sarpanch / Parshad",
+    title_hi: "सरपंच / पार्षद से ओबीसी प्रमाण पत्र",
+    icon: Stamp,
+    tag_en: "OBC proof",
+    tag_hi: "ओबीसी प्रमाण"
   },
-
-  // 7. CASTE: VANSHAVALI (Table 4 Row 5 - Supporting: No)
   {
-    id: "doc_vanshavali",
-    title_en: "Vanshavali (पारिवारिक वंशावली)",
-    title_hi: "पारिवारिक वंशावली तालिका (१/२/३/४)",
-    icon: "🌳",
-    tag: "Genealogy Tree",
-    tag_hi: "वंशावली",
-    applicableCertificates: ["caste"],
-    description_en: "Family lineage / genealogy table (Vanshavali 1 to 4 supporting proof).",
-    description_hi: "पारिवारिक वंशावली तालिका (जाति सत्यापन हेतु सहायक दस्तावेज)।"
+    // Listed for Caste (father/guardian service certificate or ID) and Domicile (father/guardian service certificate)
+    id: "doc_guardian_service_certificate",
+    title_en: "Father / Guardian's Service Certificate or ID Card",
+    title_hi: "पिता / अभिभावक का सेवा प्रमाण पत्र / पहचान पत्र",
+    icon: Contact,
+    tag_en: "OBC · Residence proof",
+    tag_hi: "ओबीसी · निवास प्रमाण"
   },
-
-  // 8. CASTE: GRAM SABHA PROPOSAL (Table 4 Row 6 - Supporting: No)
   {
-    id: "doc_gram_sabha_proposal",
-    title_en: "Gram Sabha Proposal (ग्राम सभा प्रस्ताव)",
-    title_hi: "ग्राम सभा प्रस्ताव (ग्रामीण निवासी)",
-    icon: "🏛️",
-    tag: "Rural Resolution",
-    tag_hi: "ग्राम सभा",
-    applicableCertificates: ["caste"],
-    description_en: "Gram Sabha resolution / proposal for rural residents applying for caste certificate.",
-    description_hi: "ग्रामीण क्षेत्र के निवासियों हेतु ग्राम सभा द्वारा पारित प्रस्ताव।"
+    id: "doc_misal",
+    title_en: "Misal",
+    title_hi: "मिसल",
+    icon: BookOpen,
+    tag_en: "OBC proof",
+    tag_hi: "ओबीसी प्रमाण"
   },
-
-  // 9. MARRIAGE: COMBINED PHOTO 2A (Table 3 Row 2 - Mandatory: Yes)
   {
-    id: "doc_marriage_photo_combined",
-    title_en: "Combined Photo of Groom & Bride (2a)",
-    title_hi: "वर-वधू का संयुक्त विवाह फोटो (२-ए आकार)",
-    icon: "📸",
-    tag: "Marriage Photo",
-    tag_hi: "संयुक्त फोटो",
-    applicableCertificates: ["marriage"],
-    description_en: "Combined photograph of groom and bride taken at the time of marriage (2a size).",
-    description_hi: "विवाह के समय लिया गया वर एवं वधू का २-ए आकार का संयुक्त फोटो।"
+    id: "doc_adhikar_abhilekh",
+    title_en: "Adhikar Abhilekh (Record of Rights)",
+    title_hi: "अधिकार अभिलेख",
+    icon: FileBadge,
+    tag_en: "OBC proof",
+    tag_hi: "ओबीसी प्रमाण"
+  },
+  {
+    id: "doc_jamabandi",
+    title_en: "Jamabandi",
+    title_hi: "जमाबंदी",
+    icon: LandPlot,
+    tag_en: "OBC proof",
+    tag_hi: "ओबीसी प्रमाण"
+  },
+  {
+    id: "doc_census_register_1931",
+    title_en: "1931 Census Register",
+    title_hi: "१९३१ का जनगणना पंजी",
+    icon: BookUser,
+    tag_en: "OBC proof",
+    tag_hi: "ओबीसी प्रमाण"
+  },
+  {
+    id: "doc_citizen_register_1949",
+    title_en: "1949 Citizen Register",
+    title_hi: "१९४९ का नागरिक पंजी",
+    icon: Library,
+    tag_en: "OBC proof",
+    tag_hi: "ओबीसी प्रमाण"
+  },
+  {
+    id: "doc_dakhil_kharij_register",
+    title_en: "Dakhil / Kharij Register",
+    title_hi: "दाखिल / ख़ारिज पंजी",
+    icon: BookMarked,
+    tag_en: "OBC proof",
+    tag_hi: "ओबीसी प्रमाण"
+  },
+  {
+    id: "doc_inability_proof",
+    title_en: "Proof of Inability / Unavailability",
+    title_hi: "असमर्थता / अनुपलब्धता का प्रमाण",
+    icon: FileQuestionMark,
+    tag_en: "OBC proof",
+    tag_hi: "ओबीसी प्रमाण"
   },
 
-  // 10. MARRIAGE: INVITATION CARD (Table 3 Row 11 - Mandatory: Yes)
+  // State cadre allocation (Caste certificate, not mandatory)
+  {
+    id: "doc_cadre_allocation_proof",
+    title_en: "CG State Cadre Allocation Proof (MP Reorganisation Act 2000, Sec. 67)",
+    title_hi: "मध्यप्रदेश पुनर्गठन अधिनियम २००० (धारा ६७) के अधीन छ.ग. राज्य संवर्ग आबंटन का प्रमाण",
+    icon: Scale,
+    tag_en: "Cadre allocation",
+    tag_hi: "संवर्ग आबंटन"
+  },
+
+  // Proof of residence up to 15 years (१५ वर्ष तक निवास का प्रमाण) — Domicile certificate
+  {
+    id: "doc_birth_certificate",
+    title_en: "Birth Certificate",
+    title_hi: "जन्म प्रमाण पत्र",
+    icon: Baby,
+    tag_en: "Residence proof",
+    tag_hi: "निवास प्रमाण"
+  },
+  {
+    id: "doc_employment_id",
+    title_en: "Job Certificate / ID Card (Govt. or Semi-Govt. Employee)",
+    title_hi: "नौकरी प्रमाण पत्र / पहचान पत्र (शासकीय / अर्ध शासकीय कर्मचारी)",
+    icon: Briefcase,
+    tag_en: "Residence proof",
+    tag_hi: "निवास प्रमाण"
+  },
+  {
+    id: "doc_voter_id",
+    title_en: "Voter ID Card",
+    title_hi: "वोटिंग कार्ड",
+    icon: Vote,
+    tag_en: "Residence proof",
+    tag_hi: "निवास प्रमाण"
+  },
+  {
+    id: "doc_house_land_document",
+    title_en: "House or Land Document",
+    title_hi: "घर या भूमि का दस्तावेज़",
+    icon: House,
+    tag_en: "Residence proof",
+    tag_hi: "निवास प्रमाण"
+  },
+  {
+    id: "doc_birth_intimation_form",
+    title_en: "Birth Intimation Form",
+    title_hi: "जन्म सूचना प्रपत्र",
+    icon: FilePlus,
+    tag_en: "Residence proof",
+    tag_hi: "निवास प्रमाण"
+  },
+  {
+    id: "doc_ward_mla_mp_certificate",
+    title_en: "Certificate from Ward Member / Local MLA / MP",
+    title_hi: "वार्ड सदस्य, स्थानीय विधायक / सांसद से प्रमाण पत्र",
+    icon: Landmark,
+    tag_en: "Residence proof",
+    tag_hi: "निवास प्रमाण"
+  },
+  {
+    id: "doc_electricity_bill",
+    title_en: "Electricity Bill",
+    title_hi: "बिजली का बिल",
+    icon: PlugZap,
+    tag_en: "Residence proof",
+    tag_hi: "निवास प्रमाण"
+  },
+
+  // Educational certificate (शैक्षणिक प्रमाण पत्र) — Domicile certificate
+  {
+    id: "doc_class8_certificate",
+    title_en: "Middle School Certificate (Class 8)",
+    title_hi: "माध्यमिक विद्यालय का प्रमाण पत्र (८वीं कक्षा)",
+    icon: NotebookPen,
+    tag_en: "Education proof",
+    tag_hi: "शैक्षणिक प्रमाण"
+  },
+  {
+    id: "doc_class5_certificate",
+    title_en: "Primary School Certificate (Class 5)",
+    title_hi: "प्राथमिक विद्यालय का प्रमाण पत्र (५वीं कक्षा)",
+    icon: Backpack,
+    tag_en: "Education proof",
+    tag_hi: "शैक्षणिक प्रमाण"
+  },
+  {
+    id: "doc_class10_marksheet",
+    title_en: "High School Marksheet (Class 10)",
+    title_hi: "हाई स्कूल (१०वीं कक्षा) अंकसूची",
+    icon: FileSpreadsheet,
+    tag_en: "Education proof",
+    tag_hi: "शैक्षणिक प्रमाण"
+  },
+  {
+    id: "doc_class12_certificate",
+    title_en: "Higher Secondary Certificate (Class 12)",
+    title_hi: "उच्चतर माध्यमिक विद्यालय प्रमाण पत्र (१२वीं कक्षा)",
+    icon: Award,
+    tag_en: "Education proof",
+    tag_hi: "शैक्षणिक प्रमाण"
+  },
+  {
+    id: "doc_mphil_certificate",
+    title_en: "M.Phil Certificate",
+    title_hi: "एम-फिल प्रमाण पत्र",
+    icon: Microscope,
+    tag_en: "Education proof",
+    tag_hi: "शैक्षणिक प्रमाण"
+  },
+  {
+    id: "doc_school_continuous_study",
+    title_en: "School Certificate (3 Years of Continuous Study)",
+    title_hi: "स्कूल प्रमाण पत्र (३ वर्ष निरंतर अध्ययन का प्रमाण)",
+    icon: FileClock,
+    tag_en: "Education proof",
+    tag_hi: "शैक्षणिक प्रमाण"
+  },
+  {
+    id: "doc_postgraduate_certificate",
+    title_en: "Postgraduate Certificate",
+    title_hi: "स्नातकोत्तर प्रमाण पत्र",
+    icon: Medal,
+    tag_en: "Education proof",
+    tag_hi: "शैक्षणिक प्रमाण"
+  },
+  {
+    id: "doc_technical_certificate",
+    title_en: "Certificate in Technical Subjects",
+    title_hi: "तकनीकी विषयों में प्रमाण पत्र",
+    icon: Wrench,
+    tag_en: "Education proof",
+    tag_hi: "शैक्षणिक प्रमाण"
+  },
+
+  // Marriage certificate — every row is mandatory
+  {
+    id: "doc_marriage_joint_photo",
+    title_en: "Joint Photo of Groom & Bride (2A Size)",
+    title_hi: "वर एवं वधू का संयुक्त फोटो (2A साइज)",
+    icon: Camera,
+    tag_en: "Marriage record",
+    tag_hi: "विवाह अभिलेख"
+  },
+  {
+    id: "doc_groom_birth_certificate",
+    title_en: "Groom's Birth Certificate",
+    title_hi: "वर का जन्म प्रमाण पत्र",
+    icon: Cake,
+    tag_en: "Marriage record",
+    tag_hi: "विवाह अभिलेख"
+  },
+  {
+    id: "doc_bride_birth_certificate",
+    title_en: "Bride's Birth Certificate",
+    title_hi: "वधू का जन्म प्रमाण पत्र",
+    icon: Cake,
+    tag_en: "Marriage record",
+    tag_hi: "विवाह अभिलेख"
+  },
+  {
+    id: "doc_signed_document_page1",
+    title_en: "Document Signed by Groom & Bride (Page 1)",
+    title_hi: "वर एवं वधू द्वारा हस्ताक्षरित दस्तावेज (प्रथम पेज)",
+    icon: Signature,
+    tag_en: "Marriage record",
+    tag_hi: "विवाह अभिलेख"
+  },
+  {
+    id: "doc_signed_document_page2",
+    title_en: "Document Signed by Groom & Bride (Page 2)",
+    title_hi: "वर एवं वधू द्वारा हस्ताक्षरित दस्तावेज (द्वितीय पेज)",
+    icon: FilePenLine,
+    tag_en: "Marriage record",
+    tag_hi: "विवाह अभिलेख"
+  },
+  {
+    id: "doc_challan_copy",
+    title_en: "Copy of Challan",
+    title_hi: "चालान की प्रति",
+    icon: ReceiptIndianRupee,
+    tag_en: "Marriage record",
+    tag_hi: "विवाह अभिलेख"
+  },
   {
     id: "doc_marriage_invitation_card",
-    title_en: "Marriage Invitation Card (विवाह पत्रिका)",
-    title_hi: "मूल विवाह निमंत्रण पत्रिका (कार्ड)",
-    icon: "💌",
-    tag: "Wedding Card",
-    tag_hi: "विवाह पत्रिका",
-    applicableCertificates: ["marriage"],
-    description_en: "Original printed marriage invitation card with date, venue, and parent details.",
-    description_hi: "विवाह की तिथि, स्थान एवं माता-पिता के नाम युक्त मूल विवाह पत्रिका।"
-  },
-
-  // 11. MARRIAGE: BIRTH CERTIFICATES OF GROOM & BRIDE (Table 3 Rows 6 & 7 - Mandatory: Yes)
-  {
-    id: "doc_birth_age_proofs",
-    title_en: "Birth Certificates of Groom & Bride",
-    title_hi: "वर एवं वधू का जन्म / आयु प्रमाण पत्र",
-    icon: "🎂",
-    tag: "Age Eligibility",
-    tag_hi: "आयु प्रमाण",
-    applicableCertificates: ["marriage"],
-    description_en: "Birth certificates of Groom (21+) and Bride (18+) proving statutory age eligibility.",
-    description_hi: "वर (२१ वर्ष) एवं वधू (१८ वर्ष) का अधिकृत जन्म प्रमाण पत्र।"
-  },
-
-  // 12. MARRIAGE: COPY OF CHALLAN (Table 3 Row 10 - Mandatory: Yes)
-  {
-    id: "doc_copy_of_challan",
-    title_en: "Copy of Government Challan (ट्रेजरी चालान)",
-    title_hi: "शासकीय चालान प्रति (ट्रेजरी शुल्क)",
-    icon: "🧾",
-    tag: "Treasury Fee",
-    tag_hi: "चालान प्रति",
-    applicableCertificates: ["marriage"],
-    description_en: "Official Treasury Challan receipt verifying government registration fee deposit.",
-    description_hi: "शासकीय विवाह पंजीकरण शुल्क भुगतान की अधिकृत ट्रेजरी चालान प्रति।"
+    title_en: "Marriage Invitation Card",
+    title_hi: "विवाह आमंत्रण पत्र",
+    icon: MailOpen,
+    tag_en: "Marriage record",
+    tag_hi: "विवाह अभिलेख"
   }
 ];

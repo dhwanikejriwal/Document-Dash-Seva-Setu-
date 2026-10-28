@@ -1,6 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
+import {
+  Target, Zap, Trophy, Timer, House, GraduationCap, FileBadge, BadgeIndianRupee, ShieldCheck, IndianRupee,
+  Star, Landmark, Sunrise, Leaf, Moon, Cloud, Bot, ArrowRight, Sparkles, Pointer, Rocket, Files
+} from 'lucide-react';
 import { sound } from '../audio';
 import { CERTIFICATES } from '../data/certificates';
+import { DOCUMENTS } from '../data/documents';
+import Icon from './Icon';
+import './ScreenSaver.css';
 
 export default function ScreenSaver({ onWakeUp, lang = 'en' }) {
   const isEn = lang === 'en';
@@ -10,65 +17,65 @@ export default function ScreenSaver({ onWakeUp, lang = 'en' }) {
   // Text Transition Index (Smooth 3D flip text animation)
   const [textIndex, setTextIndex] = useState(0);
   const actionTextSequence = isEn ? [
-    { tag: 'STEP 1', text: '🎯 DRAG & MATCH STATUTORY PREREQUISITES' },
-    { tag: 'STEP 2', text: '⚡ CHAIN HIGH-SPEED COMBOS & MULTIPLIERS' },
-    { tag: 'STEP 3', text: '🏆 UNLOCK ALL 4 OFFICIAL CITIZEN CERTIFICATES' },
-    { tag: 'STEP 4', text: '⏱️ BEAT THE 45-SECOND RAPID CITIZEN DASH' }
+    { tag: 'STEP 1', icon: Target, text: 'DRAG & MATCH STATUTORY PREREQUISITES' },
+    { tag: 'STEP 2', icon: Zap, text: 'CHAIN HIGH-SPEED COMBOS & MULTIPLIERS' },
+    { tag: 'STEP 3', icon: Trophy, text: 'UNLOCK ALL 4 OFFICIAL CITIZEN CERTIFICATES' },
+    { tag: 'STEP 4', icon: Timer, text: 'BEAT THE 45-SECOND RAPID CITIZEN DASH' }
   ] : [
-    { tag: 'चरण १', text: '🎯 आवश्यक दस्तावेज़ों को सही बास्केट में ड्रैग करें' },
-    { tag: 'चरण २', text: '⚡ तेज गति से कॉम्बो और अंक अर्जित करें' },
-    { tag: 'चरण ३', text: '🏆 सभी ४ सरकारी प्रमाण पत्र अनलॉक करें' },
-    { tag: 'चरण ४', text: '⏱️ ४५ सेकंड की घड़ी को मात दें' }
+    { tag: 'चरण १', icon: Target, text: 'आवश्यक दस्तावेज़ों को सही बास्केट में ड्रैग करें' },
+    { tag: 'चरण २', icon: Zap, text: 'तेज गति से कॉम्बो और अंक अर्जित करें' },
+    { tag: 'चरण ३', icon: Trophy, text: 'सभी ४ सरकारी प्रमाण पत्र अनलॉक करें' },
+    { tag: 'चरण ४', icon: Timer, text: '४५ सेकंड की घड़ी को मात दें' }
   ];
 
   // Animated Gameplay Demo Video Reel Step
   const [videoStep, setVideoStep] = useState(0);
   const videoClips = [
     {
-      docIcon: '🏠',
+      docIcon: House,
       docTitle: isEn ? 'Proof of 15-Yr Stay' : '१५ वर्ष निवास प्रमाण',
       docTag: isEn ? 'Residence Proof' : 'निवास प्रमाण',
       targetName: isEn ? 'Domicile Certificate' : 'निवास प्रमाण पत्र',
-      targetIcon: '🏠',
-      targetColor: '#0084ff',
+      targetIcon: House,
+      targetColor: 'var(--cert-domicile)',
       xp: '+150 XP',
       combo: 'COMBO 1x',
       progress: '33%',
       unlocked: false
     },
     {
-      docIcon: '🎓',
+      docIcon: GraduationCap,
       docTitle: isEn ? 'Educational Certificate' : 'शैक्षणिक प्रमाण पत्र',
       docTag: isEn ? 'Education Proof' : 'शिक्षा प्रमाण',
       targetName: isEn ? 'Domicile Certificate' : 'निवास प्रमाण पत्र',
-      targetIcon: '🏠',
-      targetColor: '#0084ff',
+      targetIcon: House,
+      targetColor: 'var(--cert-domicile)',
       xp: '+300 XP',
-      combo: 'COMBO 2x 🔥',
+      combo: 'COMBO 2x',
       progress: '66%',
       unlocked: false
     },
     {
-      docIcon: '🛡️',
+      docIcon: FileBadge,
       docTitle: isEn ? 'Caste Misal Record' : 'मिसल / अधिकार अभिलेख',
       docTag: isEn ? 'Statutory Record' : 'जाति अभिलेख',
       targetName: isEn ? 'Caste Certificate' : 'जाति प्रमाण पत्र',
-      targetIcon: '🛡️',
-      targetColor: '#00c853',
+      targetIcon: ShieldCheck,
+      targetColor: 'var(--cert-caste)',
       xp: '+500 XP BONUS',
-      combo: 'ULTRA 3x ⚡',
+      combo: 'ULTRA 3x',
       progress: '100%',
       unlocked: true
     },
     {
-      docIcon: '💰',
+      docIcon: BadgeIndianRupee,
       docTitle: isEn ? 'Patwari Income Report' : 'पटवारी/सरपंच आय प्रतिवेदन',
       docTag: isEn ? 'Income Verification' : 'आय सत्यापन',
       targetName: isEn ? 'Income Certificate' : 'आय प्रमाण पत्र',
-      targetIcon: '💰',
-      targetColor: '#ff6d00',
+      targetIcon: IndianRupee,
+      targetColor: 'var(--cert-income)',
       xp: '+350 XP',
-      combo: 'PERFECT MATCH! 🎯',
+      combo: 'PERFECT MATCH!',
       progress: '50%',
       unlocked: false
     }
@@ -99,11 +106,15 @@ export default function ScreenSaver({ onWakeUp, lang = 'en' }) {
     let particles = [];
     let sparks = [];
 
+    // Canvas can't resolve CSS variables, so read the palette tokens once.
+    const rootStyle = getComputedStyle(document.documentElement);
+    const colors = ['--blue-500', '--saffron-500', '--green-500', '--rose-500', '--gold-500']
+      .map(token => rootStyle.getPropertyValue(token).trim());
+
     const resize = () => {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
       particles = [];
-      const colors = ['#0084ff', '#ff6d00', '#00c853', '#f43f5e', '#ffaa00'];
       for (let i = 0; i < 45; i++) {
         particles.push({
           x: Math.random() * canvas.width,
@@ -122,7 +133,6 @@ export default function ScreenSaver({ onWakeUp, lang = 'en' }) {
 
     // Interactive pointer sparks
     const addSparks = (x, y) => {
-      const colors = ['#0084ff', '#ff6d00', '#00c853', '#f43f5e', '#ffaa00'];
       for (let i = 0; i < 14; i++) {
         const angle = Math.random() * Math.PI * 2;
         const speed = 1.8 + Math.random() * 3.5;
@@ -228,7 +238,7 @@ export default function ScreenSaver({ onWakeUp, lang = 'en' }) {
       {/* Top Header Bar */}
       <header className="screensaver-enhanced-header">
         <div className="screensaver-gov-pill">
-          <span className="gov-emblem-icon">🏛️</span>
+          <span className="gov-emblem-icon"><Icon as={Landmark} /></span>
           <span>{isEn ? 'GOVERNMENT OF CHHATTISGARH • CHiPS // SEVA SETU' : 'छत्तीसगढ़ शासन • चिप्स // सेवा सेतु'}</span>
           <span className="live-dot-pulse" />
         </div>
@@ -241,7 +251,7 @@ export default function ScreenSaver({ onWakeUp, lang = 'en' }) {
             onClick={() => { sound.playPickup(); setPalette('sunset'); }}
             title="Warm Sunset Gold Theme"
           >
-            🌅 {isEn ? 'Sunset' : 'सूर्योदय'}
+            <Icon as={Sunrise} /> {isEn ? 'Sunset' : 'सूर्योदय'}
           </button>
           <button
             type="button"
@@ -249,7 +259,7 @@ export default function ScreenSaver({ onWakeUp, lang = 'en' }) {
             onClick={() => { sound.playPickup(); setPalette('emerald'); }}
             title="Fresh Emerald Forest Theme"
           >
-            🌿 {isEn ? 'Emerald' : 'हरित वन'}
+            <Icon as={Leaf} /> {isEn ? 'Emerald' : 'हरित वन'}
           </button>
           <button
             type="button"
@@ -257,7 +267,7 @@ export default function ScreenSaver({ onWakeUp, lang = 'en' }) {
             onClick={() => { sound.playPickup(); setPalette('violet'); }}
             title="Twilight Violet Theme"
           >
-            🌌 {isEn ? 'Twilight' : 'सांध्य रंग'}
+            <Icon as={Moon} /> {isEn ? 'Twilight' : 'सांध्य रंग'}
           </button>
           <button
             type="button"
@@ -265,7 +275,7 @@ export default function ScreenSaver({ onWakeUp, lang = 'en' }) {
             onClick={() => { sound.playPickup(); setPalette('pearl'); }}
             title="Crystal Sky Cyan Theme"
           >
-            ☁️ {isEn ? 'Crystal' : 'श्वेत आभा'}
+            <Icon as={Cloud} /> {isEn ? 'Crystal' : 'श्वेत आभा'}
           </button>
         </div>
       </header>
@@ -282,7 +292,7 @@ export default function ScreenSaver({ onWakeUp, lang = 'en' }) {
         {/* Hero Unit with Title */}
         <div className="screensaver-hero-unit">
           <div className="screensaver-robot-mascot">
-            <span className="mascot-face">🤖</span>
+            <span className="mascot-face"><Icon as={Bot} /></span>
             <div className="mascot-aura-glow" />
           </div>
 
@@ -293,7 +303,7 @@ export default function ScreenSaver({ onWakeUp, lang = 'en' }) {
           {/* Animated 3D Text Transition Ribbon */}
           <div key={textIndex} className="screensaver-kinetic-ribbon">
             <span className="kinetic-step-badge">{currentAction.tag}</span>
-            <span className="kinetic-action-text">{currentAction.text}</span>
+            <span className="kinetic-action-text"><Icon as={currentAction.icon} /> {currentAction.text}</span>
           </div>
 
           {/* Animated Video Simulation Reel: Curved Holographic Monitor */}
@@ -305,14 +315,14 @@ export default function ScreenSaver({ onWakeUp, lang = 'en' }) {
                   {isEn ? 'LIVE GAMEPLAY DASH SIMULATOR' : 'लाइव गेमप्ले सिम्युलेटर'}
                 </span>
               </div>
-              <span className="cinema-fps-pill">60 FPS ⚡ HD</span>
+              <span className="cinema-fps-pill">60 FPS <Icon as={Zap} /> HD</span>
             </div>
 
             {/* Video Viewport: 60 FPS Animated Action Loop */}
             <div className="cinema-viewport">
               {/* Flying Animated Document Card */}
               <div className="cinema-flying-card" key={`doc-${videoStep}`}>
-                <div className="card-mini-stamp">{currentClip.docIcon}</div>
+                <div className="card-mini-stamp"><Icon as={currentClip.docIcon} /></div>
                 <div className="card-mini-info">
                   <span className="card-mini-title">{currentClip.docTitle}</span>
                   <span className="card-mini-tag">{currentClip.docTag}</span>
@@ -322,7 +332,7 @@ export default function ScreenSaver({ onWakeUp, lang = 'en' }) {
               {/* Glowing Dynamic Trajectory Beam */}
               <div className="cinema-flight-trajectory">
                 <div className="trajectory-beam" />
-                <span className="trajectory-arrow">➔</span>
+                <span className="trajectory-arrow"><Icon as={ArrowRight} /></span>
               </div>
 
               {/* Target Animated Certificate Bucket */}
@@ -331,7 +341,7 @@ export default function ScreenSaver({ onWakeUp, lang = 'en' }) {
                 style={{ '--target-color': currentClip.targetColor }}
               >
                 <div className="target-basket-badge">
-                  <span>{currentClip.unlocked ? '🏆' : currentClip.targetIcon}</span>
+                  <Icon as={currentClip.unlocked ? Trophy : currentClip.targetIcon} />
                   <strong>{currentClip.targetName}</strong>
                 </div>
 
@@ -347,7 +357,7 @@ export default function ScreenSaver({ onWakeUp, lang = 'en' }) {
                 <span className="burst-chip-xp">{currentClip.xp}</span>
                 <span className="burst-chip-combo">{currentClip.combo}</span>
                 {currentClip.unlocked && (
-                  <span className="burst-chip-unlocked">🌟 UNLOCKED!</span>
+                  <span className="burst-chip-unlocked"><Icon as={Star} /> UNLOCKED!</span>
                 )}
               </div>
             </div>
@@ -355,12 +365,12 @@ export default function ScreenSaver({ onWakeUp, lang = 'en' }) {
 
           {/* Glowing High-Energy Touch To Play Beacon */}
           <div className="screensaver-touch-beacon">
-            <span className="beacon-sparkle">✨</span>
-            <span className="beacon-finger">👆</span>
+            <span className="beacon-sparkle"><Icon as={Sparkles} /></span>
+            <span className="beacon-finger"><Icon as={Pointer} /></span>
             <span className="beacon-main-text">
               {isEn ? 'CLICK OR TAP ANYWHERE TO START' : 'शुरू करने के लिए कहीं भी क्लिक या टैप करें'}
             </span>
-            <span className="beacon-rocket">🚀</span>
+            <span className="beacon-rocket"><Icon as={Rocket} /></span>
           </div>
 
           <p className="screensaver-hint-text">
@@ -378,7 +388,7 @@ export default function ScreenSaver({ onWakeUp, lang = 'en' }) {
               className="screensaver-cert-preview-pill"
               style={{ '--cert-theme': cert.color }}
             >
-              <span className="cert-preview-icon">{cert.icon}</span>
+              <span className="cert-preview-icon"><Icon as={cert.icon} /></span>
               <span className="cert-preview-title">{isEn ? cert.name_en : cert.name_hi}</span>
             </div>
           ))}
@@ -388,11 +398,11 @@ export default function ScreenSaver({ onWakeUp, lang = 'en' }) {
       {/* Footer Stats Strip */}
       <footer className="screensaver-enhanced-footer">
         <div className="screensaver-stats-strip">
-          <span>⏱️ {isEn ? '45s RAPID DASH' : '४५ सेकंड रेस'}</span>
+          <span><Icon as={Timer} /> {isEn ? '45s RAPID DASH' : '४५ सेकंड रेस'}</span>
           <span>•</span>
-          <span>📑 {isEn ? '12 OFFICIAL PROOFS' : '१२ सरकारी दस्तावेज़'}</span>
+          <span><Icon as={Files} /> {isEn ? `${DOCUMENTS.length} OFFICIAL PROOFS` : `${DOCUMENTS.length} सरकारी दस्तावेज़`}</span>
           <span>•</span>
-          <span>🏛️ {isEn ? 'SEVA SETU CHHATTISGARH' : 'सेवा सेतु छत्तीसगढ़'}</span>
+          <span><Icon as={Landmark} /> {isEn ? 'SEVA SETU CHHATTISGARH' : 'सेवा सेतु छत्तीसगढ़'}</span>
         </div>
       </footer>
     </div>

@@ -1,0 +1,33 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--color-bg);
+  background: radial-gradient(circle at 50% 25%, var(--white) 0%, var(--sky-50) 55%, var(--sky-100) 100%);
+  color: var(--color-text);
+  overflow: hidden;
+  height: 100vh;
+  width: 100vw;
+  position: relative;
+  font-size: var(--text-base);
+}
+
+button, input, select, textarea {
+  font-family: inherit;
+}
+
+.ui-icon {
+  display: inline-block;
+  flex-shrink: 0;
+  vertical-align: -0.125em;
+}
+
+h1, h2, h3, h4, .brand-font, .deck-title-text, .basket-cert-title {
+  letter-spacing: -0.01em;
+}

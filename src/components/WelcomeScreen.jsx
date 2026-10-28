@@ -1,6 +1,12 @@
 import React, { useState } from 'react';
+import {
+  MonitorPlay, Languages, Volume2, VolumeX, Landmark, Zap, Bot, Dices, Flag, Rocket, ArrowRight,
+  User, BriefcaseBusiness, GraduationCap, Sprout, FlaskConical
+} from 'lucide-react';
 import { sound } from '../audio';
-import { CERTIFICATES } from '../data/certificates';
+import { CERTIFICATES, mandatoryRequirements } from '../data/certificates';
+import Icon from './Icon';
+import './WelcomeScreen.css';
 
 export default function WelcomeScreen({
   lang = 'en',
@@ -11,17 +17,17 @@ export default function WelcomeScreen({
   onTriggerScreensaver
 }) {
   const [name, setName] = useState('');
-  const [selectedAvatar, setSelectedAvatar] = useState('👨‍💼');
+  const [selectedAvatar, setSelectedAvatar] = useState('citizen');
   const [isLaunching, setIsLaunching] = useState(false);
   const [launchCountdown, setLaunchCountdown] = useState(null); // null | 3 | 2 | 1 | 'DASH!'
   const isEn = lang === 'en';
 
   const avatarOptions = [
-    { emoji: '👨‍💼', label_en: 'Citizen', label_hi: 'नागरिक' },
-    { emoji: '👩‍💼', label_en: 'Officer', label_hi: 'अधिकारी' },
-    { emoji: '🧑‍🎓', label_en: 'Student', label_hi: 'छात्र' },
-    { emoji: '👨‍🌾', label_en: 'Farmer', label_hi: 'किसान' },
-    { emoji: '👩‍🔬', label_en: 'Specialist', label_hi: 'विशेषज्ञ' }
+    { id: 'citizen', icon: User, label_en: 'Citizen', label_hi: 'नागरिक' },
+    { id: 'officer', icon: BriefcaseBusiness, label_en: 'Officer', label_hi: 'अधिकारी' },
+    { id: 'student', icon: GraduationCap, label_en: 'Student', label_hi: 'छात्र' },
+    { id: 'farmer', icon: Sprout, label_en: 'Farmer', label_hi: 'किसान' },
+    { id: 'specialist', icon: FlaskConical, label_en: 'Specialist', label_hi: 'विशेषज्ञ' }
   ];
 
   const quickTags = [
@@ -70,7 +76,7 @@ export default function WelcomeScreen({
 
     setTimeout(() => {
       sound.playLaunchWarp();
-      setLaunchCountdown(isEn ? 'DASH! 🚀' : 'शुरू! 🚀');
+      setLaunchCountdown(isEn ? 'DASH!' : 'शुरू!');
     }, 1140);
 
     setTimeout(() => {
@@ -78,7 +84,7 @@ export default function WelcomeScreen({
     }, 1500);
   };
 
-  const currentAvatarObj = avatarOptions.find(a => a.emoji === selectedAvatar) || avatarOptions[0];
+  const currentAvatarObj = avatarOptions.find(a => a.id === selectedAvatar) || avatarOptions[0];
 
   return (
     <div className={`welcome-stage-arena ${isLaunching ? 'stage-warp-exit' : 'stage-enter-animated'}`}>
@@ -88,6 +94,7 @@ export default function WelcomeScreen({
           <div className="countdown-ring-pulse" />
           <div className="countdown-number-display">
             {launchCountdown}
+            {typeof launchCountdown === 'string' && <> <Icon as={Rocket} /></>}
           </div>
           <div className="countdown-sub-hint">
             {isEn ? 'GET READY TO SORT!' : 'दस्तावेज़ छांटने के लिए तैयार हो जाएं!'}
@@ -121,7 +128,7 @@ export default function WelcomeScreen({
             className="icon-btn screensaver-nav-btn"
             title={isEn ? 'Attract Screensaver Mode' : 'स्क्रीनसेवर मोड'}
           >
-            🌌
+            <Icon as={MonitorPlay} />
           </button>
           <button
             type="button"
@@ -129,7 +136,7 @@ export default function WelcomeScreen({
             className="icon-btn lang-btn"
             title={isEn ? 'Switch to Hindi (हिंदी)' : 'Switch to English'}
           >
-            {isEn ? '🇮🇳 HI' : '🇬🇧 EN'}
+            <Icon as={Languages} /> {isEn ? 'HI' : 'EN'}
           </button>
           <button
             type="button"
@@ -137,7 +144,7 @@ export default function WelcomeScreen({
             className="icon-btn"
             title={isAudioMuted ? 'Unmute Audio' : 'Mute Audio'}
           >
-            {isAudioMuted ? '🔇' : '🔊'}
+            <Icon as={isAudioMuted ? VolumeX : Volume2} />
           </button>
         </div>
       </header>
@@ -146,7 +153,7 @@ export default function WelcomeScreen({
       <main className="welcome-hero-arena">
         {/* Top Mission Pill */}
         <div className="lets-start-animated-banner">
-          <span className="banner-word word-flame">🏛️</span>
+          <span className="banner-word word-flame"><Icon as={Landmark} /></span>
           <span className="banner-word word-greet">
             {isEn ? "OFFICIAL SEVA SETU MISSION" : "आधिकारिक सेवा सेतु नागरिक मिशन"}
           </span>
@@ -154,13 +161,13 @@ export default function WelcomeScreen({
           <span className="banner-word word-race">
             {isEn ? "45s RAPID DASH" : "४५ सेकंड रैपिड रेस"}
           </span>
-          <span className="banner-word word-flag">⚡</span>
+          <span className="banner-word word-flag"><Icon as={Zap} /></span>
         </div>
 
         {/* Central Brand Title */}
         <div className="welcome-title-cluster">
           <div className="mascot-grand-avatar">
-            <span className="mascot-robot-face">🤖</span>
+            <span className="mascot-robot-face"><Icon as={Bot} /></span>
             <div className="mascot-halo-ring" />
           </div>
 
@@ -187,11 +194,11 @@ export default function WelcomeScreen({
               className="welcome-quest-badge"
               style={{ '--quest-color': c.color }}
             >
-              <span className="quest-badge-icon">{c.icon}</span>
+              <span className="quest-badge-icon"><Icon as={c.icon} /></span>
               <div className="quest-badge-info">
                 <strong className="quest-badge-name">{isEn ? c.name_en : c.name_hi}</strong>
                 <span className="quest-badge-docs">
-                  {c.mandatoryDocIds.length} {isEn ? 'Proofs Needed' : 'दस्तावेज़ आवश्यक'}
+                  {mandatoryRequirements(c).length} {isEn ? 'Proofs Needed' : 'दस्तावेज़ आवश्यक'}
                 </span>
               </div>
             </div>
@@ -221,7 +228,7 @@ export default function WelcomeScreen({
               onClick={handleRandomTag}
               title={isEn ? 'Generate random callsign' : 'यादृच्छिक नाम चुनें'}
             >
-              <span>🎲</span>
+              <Icon as={Dices} />
               <span>{isEn ? 'RANDOM CALLSIGN' : 'यादृच्छिक नाम'}</span>
             </button>
           </div>
@@ -231,7 +238,7 @@ export default function WelcomeScreen({
             <div className="cyber-input-enclosure">
               {/* Animated Avatar Pod */}
               <div className="holo-avatar-pod" title="Player Avatar">
-                <span className="holo-avatar-face">{selectedAvatar}</span>
+                <span className="holo-avatar-face"><Icon as={currentAvatarObj.icon} /></span>
                 <span className="holo-pod-role-badge">
                   {isEn ? currentAvatarObj.label_en : currentAvatarObj.label_hi}
                 </span>
@@ -257,7 +264,7 @@ export default function WelcomeScreen({
                   autoComplete="off"
                 />
 
-                <span className="cyber-input-sparkle">⚡</span>
+                <span className="cyber-input-sparkle"><Icon as={Zap} /></span>
                 <div className="cyber-laser-scanline" />
               </div>
             </div>
@@ -289,16 +296,16 @@ export default function WelcomeScreen({
               <div className="avatar-chip-row">
                 {avatarOptions.map(av => (
                   <button
-                    key={av.emoji}
+                    key={av.id}
                     type="button"
-                    className={`avatar-chip-btn ${selectedAvatar === av.emoji ? 'avatar-active' : ''}`}
+                    className={`avatar-chip-btn ${selectedAvatar === av.id ? 'avatar-active' : ''}`}
                     onClick={() => {
                       sound.playPickup();
-                      setSelectedAvatar(av.emoji);
+                      setSelectedAvatar(av.id);
                     }}
                     title={isEn ? av.label_en : av.label_hi}
                   >
-                    <span className="avatar-emoji-span">{av.emoji}</span>
+                    <span className="avatar-emoji-span"><Icon as={av.icon} /></span>
                     <span className="avatar-title-sub">{isEn ? av.label_en : av.label_hi}</span>
                   </button>
                 ))}
@@ -313,11 +320,11 @@ export default function WelcomeScreen({
             >
               <span className="cta-conic-glow" />
               <span className="cta-content-row">
-                <span className="cta-flag-icon">🏁</span>
+                <span className="cta-flag-icon"><Icon as={Flag} /></span>
                 <span className="cta-main-text">
                   {isEn ? "START 45s CITIZEN RACE!" : "४५ सेकंड नागरिक रेस शुरू करें!"}
                 </span>
-                <span className="cta-lightning-bolt">🚀</span>
+                <span className="cta-lightning-bolt"><Icon as={Rocket} /></span>
               </span>
             </button>
           </form>
@@ -332,7 +339,7 @@ export default function WelcomeScreen({
               <p>{isEn ? 'Click or drag official records from top shelf' : 'ऊपर शेल्फ से सरकारी प्रमाण पत्र चुनें'}</p>
             </div>
           </div>
-          <div className="guide-step-arrow">➔</div>
+          <div className="guide-step-arrow"><Icon as={ArrowRight} /></div>
           <div className="guide-step-card">
             <span className="step-num-bubble">2</span>
             <div className="step-content">
@@ -340,7 +347,7 @@ export default function WelcomeScreen({
               <p>{isEn ? 'Deposit into Domicile, Caste, Income or Marriage' : 'निवास, जाति, आय या विवाह में जमा करें'}</p>
             </div>
           </div>
-          <div className="guide-step-arrow">➔</div>
+          <div className="guide-step-arrow"><Icon as={ArrowRight} /></div>
           <div className="guide-step-card">
             <span className="step-num-bubble">3</span>
             <div className="step-content">

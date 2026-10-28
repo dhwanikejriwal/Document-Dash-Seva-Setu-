@@ -1,4 +1,7 @@
 import React from 'react';
+import { Timer, User, Award, Languages, Volume2, VolumeX, CircleHelp, Flag } from 'lucide-react';
+import Icon from './Icon';
+import './GameHUD.css';
 
 export default function GameHUD({
   participantName,
@@ -6,8 +9,6 @@ export default function GameHUD({
   unlockedCount,
   totalCertificates,
   lang,
-  theme = 'dark',
-  onToggleTheme,
   onToggleLang,
   isAudioMuted,
   onToggleAudio,
@@ -42,7 +43,7 @@ export default function GameHUD({
 
       {/* Center 45-Second Timer Pill */}
       <div className={`countdown-timer-pill ${isUrgent ? 'timer-urgent' : ''}`}>
-        <span className="timer-icon">⏱️</span>
+        <span className="timer-icon"><Icon as={Timer} /></span>
         <span className="timer-digits">{timeFormatted}</span>
       </div>
 
@@ -50,17 +51,17 @@ export default function GameHUD({
       <div className="hud-stats-group">
         {/* Participant Name Badge */}
         <div className="participant-hud-badge" title="Active Citizen Participant">
-          <span>👤</span>
+          <Icon as={User} />
           <span className="participant-hud-name">{participantName}</span>
         </div>
 
         {/* Certificates Unlocked Count */}
         <div className="target-cert-pill">
-          <span className="cert-icon">📜</span>
+          <span className="cert-icon"><Icon as={Award} /></span>
           <span className="cert-name">
             {unlockedCount} / {totalCertificates}
           </span>
-          <span className="level-badge" style={{ background: unlockedCount === 4 ? '#00e676' : undefined }}>
+          <span className="level-badge" style={{ background: unlockedCount === 4 ? 'var(--green-400)' : undefined }}>
             {unlockedCount === 4 ? (isEn ? 'MASTER' : 'मास्टर') : (isEn ? 'UNLOCKED' : 'अनलॉक')}
           </span>
         </div>
@@ -73,7 +74,7 @@ export default function GameHUD({
             className="icon-btn lang-btn"
             title={isEn ? 'Switch to Hindi' : 'Switch to English'}
           >
-            {isEn ? '🇮🇳' : '🇬🇧'}
+            <Icon as={Languages} />
           </button>
 
           <button
@@ -81,7 +82,7 @@ export default function GameHUD({
             className="icon-btn"
             title={isAudioMuted ? 'Unmute Sound' : 'Mute Sound'}
           >
-            {isAudioMuted ? '🔇' : '🔊'}
+            <Icon as={isAudioMuted ? VolumeX : Volume2} />
           </button>
 
           <button
@@ -89,7 +90,7 @@ export default function GameHUD({
             className="icon-btn"
             title="Rules & Guide"
           >
-            ℹ️
+            <Icon as={CircleHelp} />
           </button>
 
           <button
@@ -97,7 +98,7 @@ export default function GameHUD({
             className="icon-btn"
             title={isEn ? 'Finish Challenge & View Score Card' : 'स्कोर कार्ड देखें'}
           >
-            🏁
+            <Icon as={Flag} />
           </button>
         </div>
       </div>

@@ -1,6 +1,9 @@
 import React, { useEffect } from 'react';
 import confetti from 'canvas-confetti';
+import { Flag, Star, User, ScrollText, Lock, Users, RotateCcw } from 'lucide-react';
 import { CERTIFICATES } from '../data/certificates';
+import Icon from './Icon';
+import './ResultScoreCardModal.css';
 
 export default function ResultScoreCardModal({
   participantName,
@@ -30,54 +33,62 @@ export default function ResultScoreCardModal({
   const getRankBadge = () => {
     if (unlockedCount >= 4) {
       return {
-        title_en: '⭐⭐⭐ Master Document Officer',
-        title_hi: '⭐⭐⭐ मुख्य दस्तावेज़ अधिकारी',
-        color: '#ffd700',
-        bg: 'rgba(255, 215, 0, 0.2)',
-        border: '#ffd700'
+        stars: 3,
+        title_en: 'Master Document Officer',
+        title_hi: 'मुख्य दस्तावेज़ अधिकारी',
+        color: 'var(--gold-300)',
+        bg: 'rgba(var(--gold-300-rgb), 0.2)',
+        border: 'var(--gold-300)'
       };
     }
     if (unlockedCount >= 2) {
       return {
-        title_en: '⭐⭐ Certified Citizen Specialist',
-        title_hi: '⭐⭐ प्रमाणित नागरिक विशेषज्ञ',
-        color: '#00e676',
-        bg: 'rgba(0, 230, 118, 0.2)',
-        border: '#00e676'
+        stars: 2,
+        title_en: 'Certified Citizen Specialist',
+        title_hi: 'प्रमाणित नागरिक विशेषज्ञ',
+        color: 'var(--green-400)',
+        bg: 'rgba(var(--green-400-rgb), 0.2)',
+        border: 'var(--green-400)'
       };
     }
     if (unlockedCount >= 1) {
       return {
-        title_en: '⭐ Document Explorer',
-        title_hi: '⭐ दस्तावेज़ अन्वेषक',
-        color: '#00d2ff',
-        bg: 'rgba(0, 210, 255, 0.2)',
-        border: '#00d2ff'
+        stars: 1,
+        title_en: 'Document Explorer',
+        title_hi: 'दस्तावेज़ अन्वेषक',
+        color: 'var(--cyan-400)',
+        bg: 'rgba(var(--cyan-400-rgb), 0.2)',
+        border: 'var(--cyan-400)'
       };
     }
     return {
+      stars: 0,
       title_en: 'Rookie Citizen (Keep Learning)',
       title_hi: 'प्रशिक्षु नागरिक (अभ्यास जारी रखें)',
-      color: '#94a3b8',
-      bg: 'rgba(148, 163, 184, 0.2)',
-      border: '#94a3b8'
+      color: 'var(--ink-400)',
+      bg: 'rgba(var(--ink-400-rgb), 0.2)',
+      border: 'var(--ink-400)'
     };
   };
 
   const rank = getRankBadge();
+
+  // Completion wins over the clock; finishing early with certificates left is its own ending
+  const isQuestComplete = unlockedCount === CERTIFICATES.length;
+  const title = isQuestComplete
+    ? (isEn ? 'QUEST COMPLETED!' : 'क्वेस्ट पूर्ण!')
+    : timeExpired
+      ? (isEn ? "TIME'S UP!" : 'समय समाप्त!')
+      : (isEn ? 'RACE FINISHED!' : 'रेस समाप्त!');
 
   return (
     <div className="modal-overlay active" role="dialog" aria-modal="true">
       <div className="scorecard-cyber-box">
         {/* Header */}
         <div className="scorecard-header">
-          <div className="scorecard-flag-badge">🏁</div>
+          <div className="scorecard-flag-badge"><Icon as={Flag} /></div>
           <div>
-            <h2 className="scorecard-title">
-              {timeExpired
-                ? (isEn ? "TIME'S UP!" : "समय समाप्त!")
-                : (isEn ? "QUEST COMPLETED!" : "क्वेस्ट पूर्ण!")}
-            </h2>
+            <h2 className="scorecard-title">{title}</h2>
           </div>
         </div>
 
@@ -88,7 +99,7 @@ export default function ResultScoreCardModal({
               {isEn ? 'Citizen Participant / नागरिक प्रतिभागी' : 'नागरिक प्रतिभागी'}
             </span>
             <h3 className="banner-participant-name">
-              👤 {participantName || (isEn ? 'Citizen Participant' : 'नागरिक')}
+              <Icon as={User} /> {participantName || (isEn ? 'Citizen Participant' : 'नागरिक')}
             </h3>
           </div>
 
@@ -100,6 +111,8 @@ export default function ResultScoreCardModal({
               borderColor: rank.border
             }}
           >
+            {Array.from({ length: rank.stars }, (_, i) => <Icon key={i} as={Star} fill="currentColor" />)}
+            {rank.stars > 0 && ' '}
             {isEn ? rank.title_en : rank.title_hi}
           </div>
         </div>
@@ -145,10 +158,11 @@ export default function ResultScoreCardModal({
                   key={c.id}
                   className={`scorecard-cert-card ${isThisUnlocked ? 'card-unlocked' : 'card-locked'}`}
                   style={{
-                    borderColor: isThisUnlocked ? c.color : 'rgba(255, 255, 255, 0.1)'
+                    '--cert-color': c.color,
+                    borderColor: isThisUnlocked ? c.color : 'rgba(var(--white-rgb), 0.1)'
                   }}
                 >
-                  <span className="cert-card-icon">{c.icon}</span>
+                  <span className="cert-card-icon"><Icon as={c.icon} /></span>
                   <span className="cert-card-title">
                     {isEn ? c.name_en.split(' ')[0] : c.name_hi.split(' ')[0]}
                   </span>
@@ -159,11 +173,11 @@ export default function ResultScoreCardModal({
                       className="cert-card-view-btn"
                       style={{ background: c.gradient }}
                     >
-                      📜 {isEn ? 'View Cert' : 'देखें'}
+                      <Icon as={ScrollText} /> {isEn ? 'View Cert' : 'देखें'}
                     </button>
                   ) : (
                     <span className="cert-card-locked-text">
-                      🔒 {isEn ? 'Locked' : 'अपूर्ण'}
+                      <Icon as={Lock} /> {isEn ? 'Locked' : 'अपूर्ण'}
                     </span>
                   )}
                 </div>
@@ -179,7 +193,7 @@ export default function ResultScoreCardModal({
             className="scorecard-btn-next"
             onClick={onNextParticipant}
           >
-            👥 {isEn ? 'NEXT PARTICIPANT (अगला प्रतिभागी)' : 'अगला प्रतिभागी (नया सत्र)'}
+            <Icon as={Users} /> {isEn ? 'NEXT PARTICIPANT (अगला प्रतिभागी)' : 'अगला प्रतिभागी (नया सत्र)'}
           </button>
 
           <button
@@ -187,7 +201,7 @@ export default function ResultScoreCardModal({
             className="scorecard-btn-retry"
             onClick={onRetry}
           >
-            🔄 {isEn ? 'Try Again (पुनः प्रयास)' : 'पुनः प्रयास करें'}
+            <Icon as={RotateCcw} /> {isEn ? 'Try Again (पुनः प्रयास)' : 'पुनः प्रयास करें'}
           </button>
         </div>
       </div>

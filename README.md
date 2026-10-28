@@ -13,7 +13,7 @@
   - 🛡️ **Caste Certificate (जाति प्रमाण पत्र)**
   - 💰 **Income Certificate (आय प्रमाण पत्र)**
   - 💍 **Marriage Certificate (विवाह प्रमाण पत्र)**
-- **📑 12 Official Chhattisgarh Prerequisite Documents**: Accurate statutory proof types (Affidavits, Proof of Stay, Education Records, Patwari/Sarpanch Income Proofs, Misal/Adhikar Abhilekh, Vanshvali, Gram Sabha Proposals, Marriage Cards, Photos, Treasury Challans).
+- **📑 43 Official Chhattisgarh Supporting Documents**: Every document type and supporting document from the Seva Setu prerequisite tables (Affidavit, Income Proof, OBC Proof, 15-Year Residence Proof, Educational Certificate, and all eight Marriage records). Any one supporting document satisfies its document type, and the documents scroll in a horizontal slider.
 - **✨ 3D Dynamic Arena**: Built with Three.js featuring daytime volumetric lighting, geometric physics particles, and ambient visual cues.
 - **🎨 Bright Light Theme & High-Legibility Typography**: Curated high-contrast palette (Electric Azure, Vivid Emerald, Saffron Amber, Rose Magenta) with prominent, easily readable typography.
 - **🔊 Dynamic Audio Effects**: Synthesized web-audio sound effects for keypresses, drops, combos, countdowns, and trophy unlocks.

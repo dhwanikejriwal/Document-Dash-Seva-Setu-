@@ -1,119 +1,207 @@
+import { House, ShieldCheck, IndianRupee, HeartHandshake } from "lucide-react";
+
 // Official Seva Setu Certificate Prerequisite Data Model
-// Aligned with the official Government of Chhattisgarh e-District / CHiPS tables
+// Aligned with the official Government of Chhattisgarh e-District / CHiPS tables.
+// Each requirement is one row of the table (document type, serial = क्रम सं);
+// any one of its supporting documents (docIds) satisfies it.
+
+const AFFIDAVIT = { id: "affidavit", name_en: "Affidavit", name_hi: "शपथ पत्र", mandatory: true, docIds: ["doc_affidavit"] };
 
 export const CERTIFICATES = [
   {
     id: "domicile",
     name_en: "Domicile Certificate",
     name_hi: "निवास प्रमाण पत्र",
-    subtitle_en: "Affidavit + 15-Yr Stay + Educational Proof",
-    subtitle_hi: "शपथ पत्र + १५ वर्ष निवास + शैक्षणिक प्रमाण",
-    color: "#0084ff",
-    gradient: "linear-gradient(135deg, #0070f3, #00d2ff)",
-    glowColor: "rgba(0, 132, 255, 0.45)",
-    icon: "🏠",
+    subtitle_en: "Affidavit + 15-Yr Residence Proof + Educational Certificate",
+    subtitle_hi: "शपथ पत्र + १५ वर्ष निवास प्रमाण + शैक्षणिक प्रमाण पत्र",
+    color: "var(--cert-domicile)",
+    gradient: "linear-gradient(135deg, var(--blue-600), var(--cyan-400))",
+    glowColor: "rgba(var(--cert-domicile-rgb), 0.45)",
+    icon: House,
     authority_en: "Office of the Sub-Divisional Officer (Revenue)",
     authority_hi: "कार्यालय अनुविभागीय अधिकारी (राजस्व)",
-    // As per Table 2 (Domicile Required Documents):
-    // 1. Affidavit (Mandatory: Yes)
-    // 2. Proof of 15 Years Stay (Mandatory: Yes)
-    // 3. Educational Certificate (Mandatory: Yes)
-    mandatoryDocIds: [
-      "doc_affidavit",
-      "doc_stay_15_proof",
-      "doc_educational_certificate"
-    ],
-    // 4. Proof of 5 Years Stay (Mandatory: No / Supporting)
-    optionalDocIds: [
-      "doc_stay_5_proof"
+    requirements: [
+      { serial: 1, ...AFFIDAVIT },
+      {
+        serial: 3,
+        id: "residence_15yr",
+        name_en: "Proof of Residence up to 15 Years",
+        name_hi: "१५ वर्ष तक निवास का प्रमाण",
+        mandatory: true,
+        docIds: [
+          "doc_birth_certificate",
+          "doc_guardian_service_certificate",
+          "doc_employment_id",
+          "doc_voter_id",
+          "doc_house_land_document",
+          "doc_birth_intimation_form",
+          "doc_ward_mla_mp_certificate",
+          "doc_ration_card",
+          "doc_electricity_bill"
+        ]
+      },
+      {
+        serial: 4,
+        id: "education",
+        name_en: "Educational Certificate",
+        name_hi: "शैक्षणिक प्रमाण पत्र",
+        mandatory: true,
+        docIds: [
+          "doc_class8_certificate",
+          "doc_class5_certificate",
+          "doc_class10_marksheet",
+          "doc_class12_certificate",
+          "doc_mphil_certificate",
+          "doc_school_continuous_study",
+          "doc_postgraduate_certificate",
+          "doc_technical_certificate",
+          // The generic card from the Caste table is this row's own document type, so it counts here too.
+          "doc_educational_certificate"
+        ]
+      }
     ],
     sampleCodePrefix: "CG-DOM",
-    statutoryClause_en: "Applicant has verified: (1) Statutory Affidavit, (2) 15+ years continuous stay proof (Voter ID/Birth/Land/Bill), and (3) Educational Certificate in Chhattisgarh.",
-    statutoryClause_hi: "आवेदक ने पूर्ण किए हैं: (१) शपथ पत्र, (२) १५ वर्ष निरंतर निवास प्रमाण (मतदाता/रजिस्ट्री/बिल), एवं (३) राज्य में शैक्षणिक प्रमाण पत्र।"
+    statutoryClause_en: "Applicant has submitted (1) an Affidavit, (2) Proof of residence in Chhattisgarh up to 15 years, and (3) an Educational Certificate.",
+    statutoryClause_hi: "आवेदक ने (१) शपथ पत्र, (२) छत्तीसगढ़ में १५ वर्ष तक निवास का प्रमाण, एवं (३) शैक्षणिक प्रमाण पत्र प्रस्तुत किया है।"
   },
   {
     id: "caste",
     name_en: "Caste Certificate",
     name_hi: "जाति प्रमाण पत्र",
-    subtitle_en: "Affidavit + Income Proof + Caste/Misal Record",
-    subtitle_hi: "शपथ पत्र + आय प्रमाण + जाति/मिसल साक्ष्य",
-    color: "#00c853",
-    gradient: "linear-gradient(135deg, #00b050, #00e676)",
-    glowColor: "rgba(0, 200, 83, 0.45)",
-    icon: "🛡️",
+    subtitle_en: "Affidavit + Income Proof + OBC Proof",
+    subtitle_hi: "शपथ पत्र + आय प्रमाण + अ.पि.व. प्रमाण",
+    color: "var(--cert-caste)",
+    gradient: "linear-gradient(135deg, var(--green-600), var(--green-400))",
+    glowColor: "rgba(var(--cert-caste-rgb), 0.45)",
+    icon: ShieldCheck,
     authority_en: "Tehsildar & District Caste Scrutiny Committee",
     authority_hi: "कार्यालय तहसीलदार एवं जाति छानबीन समिति",
-    // As per Table 4 (Caste / OBC Required Documents):
-    // 1. Affidavit (Mandatory: Yes)
-    // 2. Income Proof (Mandatory: Yes)
-    // 3. Obc Proof / Misal / Adhikar Abhilekh (Mandatory: Yes)
-    mandatoryDocIds: [
-      "doc_affidavit",
-      "doc_income_proof",
-      "doc_caste_obc_misal"
-    ],
-    // Supporting: Vanshavali (Row 5: No), Gram Sabha Proposal (Row 6: No)
-    optionalDocIds: [
-      "doc_vanshavali",
-      "doc_gram_sabha_proposal"
+    requirements: [
+      { serial: 2, ...AFFIDAVIT },
+      {
+        serial: 3,
+        id: "income_proof",
+        name_en: "Income Proof",
+        name_hi: "आय प्रमाण",
+        mandatory: true,
+        docIds: [
+          "doc_patwari_income_certificate",
+          "doc_employer_income_form16",
+          "doc_ration_card",
+          "doc_land_house_income",
+          "doc_other_income_proof",
+          "doc_application_form"
+        ]
+      },
+      {
+        serial: 4,
+        id: "obc_proof",
+        name_en: "Proof of Other Backward Class (OBC)",
+        name_hi: "अन्य पिछड़ा वर्ग का प्रमाण",
+        mandatory: true,
+        docIds: [
+          "doc_educational_certificate",
+          "doc_primary_school_transfer",
+          "doc_father_obc_certificate",
+          "doc_sarpanch_obc_certificate",
+          "doc_guardian_service_certificate",
+          "doc_misal",
+          "doc_adhikar_abhilekh",
+          "doc_jamabandi",
+          "doc_census_register_1931",
+          "doc_citizen_register_1949",
+          "doc_dakhil_kharij_register",
+          "doc_inability_proof"
+        ]
+      },
+      {
+        serial: 7,
+        id: "cadre_allocation",
+        name_en: "Proof of CG State Cadre Allocation (MP Reorganisation Act 2000, Sec. 67)",
+        name_hi: "मध्यप्रदेश पुनर्गठन अधिनियम २००० (क्रमांक २६-सन २००० की धारा ६७ के अधीन छ.ग. राज्य संवर्ग आबंटन) का प्रमाण",
+        mandatory: false,
+        docIds: ["doc_cadre_allocation_proof"]
+      }
     ],
     sampleCodePrefix: "CG-CST",
-    statutoryClause_en: "Applicant has satisfied caste verification: (1) Statutory Affidavit, (2) Patwari/Sarpanch Income Proof, and (3) Caste Misal / Adhikar Abhilekh Record.",
-    statutoryClause_hi: "आवेदक ने जाति पात्रता सिद्ध की है: (१) वैधानिक शपथ पत्र, (२) पटवारी/सरपंच आय प्रमाण, एवं (३) मिसल बंदोबस्त / अधिकार अभिलेख अभिलेख।"
+    statutoryClause_en: "Applicant has satisfied OBC caste verification with (1) an Affidavit, (2) Income Proof, and (3) Proof of Other Backward Class status.",
+    statutoryClause_hi: "आवेदक ने अन्य पिछड़ा वर्ग पात्रता सिद्ध की है: (१) शपथ पत्र, (२) आय प्रमाण, एवं (३) अन्य पिछड़ा वर्ग का प्रमाण।"
   },
   {
     id: "income",
     name_en: "Income Certificate",
     name_hi: "आय प्रमाण पत्र",
-    subtitle_en: "Affidavit + Patwari/Employer Income Proof",
-    subtitle_hi: "शपथ पत्र + पटवारी/नियोजक आय प्रमाण",
-    color: "#ff6d00",
-    gradient: "linear-gradient(135deg, #ff5500, #ffb300)",
-    glowColor: "rgba(255, 109, 0, 0.45)",
-    icon: "💰",
+    subtitle_en: "Affidavit + Income Proof",
+    subtitle_hi: "शपथ पत्र + आय प्रमाण",
+    color: "var(--cert-income)",
+    gradient: "linear-gradient(135deg, var(--saffron-600), var(--gold-500))",
+    glowColor: "rgba(var(--cert-income-rgb), 0.45)",
+    icon: IndianRupee,
     authority_en: "Office of the Tehsildar (Revenue)",
     authority_hi: "कार्यालय तहसीलदार (राजस्व)",
-    // As per Table 1 (Income Required Documents):
-    // 1. शपथ पत्र (Affidavit - Mandatory: Yes)
-    // 2. आय प्रमाण (Income Proof - Mandatory: Yes)
-    mandatoryDocIds: [
-      "doc_affidavit",
-      "doc_income_proof"
+    requirements: [
+      { serial: 1, ...AFFIDAVIT },
+      {
+        serial: 2,
+        id: "income_proof",
+        name_en: "Income Proof",
+        name_hi: "आय प्रमाण",
+        mandatory: true,
+        // The table lists "Employer's income certificate / Form 16" and "Form 16" separately; both are doc_employer_income_form16.
+        docIds: [
+          "doc_patwari_income_certificate",
+          "doc_employer_income_form16",
+          "doc_land_house_income",
+          "doc_other_income_proof",
+          "doc_application_form",
+          "doc_family_members_income"
+        ]
+      }
     ],
-    optionalDocIds: [],
     sampleCodePrefix: "CG-INC",
-    statutoryClause_en: "Gross annual household income verified pursuant to (1) Statutory Affidavit and (2) Patwari/Sarpanch inquiry report or Employer Form 16.",
-    statutoryClause_hi: "कुल वार्षिक पारिवारिक आय का निर्धारण (१) शपथ पत्र एवं (२) हल्का पटवारी/सरपंच जांच प्रतिवेदन / फॉर्म १६ के आधार पर सत्यापित किया गया है।"
+    statutoryClause_en: "Annual household income verified on the basis of (1) an Affidavit and (2) Income Proof.",
+    statutoryClause_hi: "वार्षिक पारिवारिक आय का सत्यापन (१) शपथ पत्र एवं (२) आय प्रमाण के आधार पर किया गया है।"
   },
   {
     id: "marriage",
     name_en: "Marriage Certificate",
     name_hi: "विवाह प्रमाण पत्र",
-    subtitle_en: "Joint Photo + Wedding Card + Age Proofs",
-    subtitle_hi: "संयुक्त फोटो + विवाह पत्रिका + आयु प्रमाण",
-    color: "#f43f5e",
-    gradient: "linear-gradient(135deg, #e11d48, #ff4081)",
-    glowColor: "rgba(244, 63, 94, 0.45)",
-    icon: "💍",
+    subtitle_en: "Affidavit + Joint Photo + Birth Certificates + Signed Documents + Challan + Invitation Card",
+    subtitle_hi: "शपथ पत्र + संयुक्त फोटो + जन्म प्रमाण पत्र + हस्ताक्षरित दस्तावेज + चालान + आमंत्रण पत्र",
+    color: "var(--cert-marriage)",
+    gradient: "linear-gradient(135deg, var(--rose-600), var(--pink-500))",
+    glowColor: "rgba(var(--cert-marriage-rgb), 0.45)",
+    icon: HeartHandshake,
     authority_en: "Office of the Registrar of Marriages",
     authority_hi: "कार्यालय विवाह पंजीयक",
-    // As per Table 3 (Marriage Required Documents):
-    // 1. Affidavit (Mandatory: Yes)
-    // 2. Combined Photograph 2a Size (Mandatory: Yes)
-    // 3. Marriage Invitation Card (Mandatory: Yes)
-    // 4. Birth Certificate of Groom & Bride (Mandatory: Yes)
-    mandatoryDocIds: [
-      "doc_affidavit",
-      "doc_marriage_photo_combined",
-      "doc_marriage_invitation_card",
-      "doc_birth_age_proofs"
-    ],
-    // Supporting: Copy of Challan (Table 3 Row 10)
-    optionalDocIds: [
-      "doc_copy_of_challan"
+    requirements: [
+      { serial: 1, ...AFFIDAVIT },
+      { serial: 2, id: "joint_photo", name_en: "Joint Photo of Groom & Bride (2A Size)", name_hi: "वर एवं वधू का संयुक्त फोटो (2A साइज)", mandatory: true, docIds: ["doc_marriage_joint_photo"] },
+      { serial: 6, id: "groom_birth", name_en: "Groom's Birth Certificate", name_hi: "वर का जन्म प्रमाण पत्र", mandatory: true, docIds: ["doc_groom_birth_certificate"] },
+      { serial: 7, id: "bride_birth", name_en: "Bride's Birth Certificate", name_hi: "वधू का जन्म प्रमाण पत्र", mandatory: true, docIds: ["doc_bride_birth_certificate"] },
+      { serial: 8, id: "signed_page1", name_en: "Document Signed by Groom & Bride (Page 1)", name_hi: "वर एवं वधू द्वारा हस्ताक्षरित दस्तावेज (प्रथम पेज)", mandatory: true, docIds: ["doc_signed_document_page1"] },
+      { serial: 9, id: "signed_page2", name_en: "Document Signed by Groom & Bride (Page 2)", name_hi: "वर एवं वधू द्वारा हस्ताक्षरित दस्तावेज (द्वितीय पेज)", mandatory: true, docIds: ["doc_signed_document_page2"] },
+      { serial: 10, id: "challan", name_en: "Copy of Challan", name_hi: "चालान की प्रति", mandatory: true, docIds: ["doc_challan_copy"] },
+      { serial: 11, id: "invitation", name_en: "Marriage Invitation Card", name_hi: "विवाह आमंत्रण पत्र", mandatory: true, docIds: ["doc_marriage_invitation_card"] }
     ],
     sampleCodePrefix: "CG-MAR",
-    statutoryClause_en: "Solemnization registered pursuant to: (1) Statutory Affidavit, (2) Combined Photograph (2a size), (3) Original Marriage Invitation Card, (4) Groom/Bride Birth Records, and (5) Government Challan.",
-    statutoryClause_hi: "विवाह पंजीकरण पूर्ण: (१) शपथ पत्र, (२) वर-वधू का संयुक्त २-ए फोटोग्राफ, (३) मूल विवाह निमंत्रण पत्रिका, (४) वर-वधू जन्म प्रमाण, एवं (५) शासकीय चालान प्रति।"
+    statutoryClause_en: "Marriage registered on the basis of (1) an Affidavit, (2) a joint 2A-size photo of the groom and bride, (3–4) birth certificates of the groom and bride, (5–6) both pages of the document signed by the groom and bride, (7) a copy of the challan, and (8) the marriage invitation card.",
+    statutoryClause_hi: "विवाह पंजीकरण (१) शपथ पत्र, (२) वर एवं वधू का संयुक्त फोटो (2A साइज), (३–४) वर एवं वधू के जन्म प्रमाण पत्र, (५–६) वर एवं वधू द्वारा हस्ताक्षरित दस्तावेज के दोनों पेज, (७) चालान की प्रति, एवं (८) विवाह आमंत्रण पत्र के आधार पर किया गया है।"
   }
 ];
+
+// Rule helpers shared by the game loop, baskets and guides.
+export const acceptsDocument = (cert, docId) =>
+  cert.requirements.some(req => req.docIds.includes(docId));
+
+export const mandatoryRequirements = cert =>
+  cert.requirements.filter(req => req.mandatory);
+
+export const isRequirementMet = (req, collectedDocIds) =>
+  req.docIds.some(id => collectedDocIds.includes(id));
+
+export const metRequirementCount = (cert, collectedDocIds) =>
+  mandatoryRequirements(cert).filter(req => isRequirementMet(req, collectedDocIds)).length;
+
+export const isCertificateComplete = (cert, collectedDocIds) =>
+  mandatoryRequirements(cert).every(req => isRequirementMet(req, collectedDocIds));

@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import confetti from 'canvas-confetti';
 import { sound } from './audio';
-import { CERTIFICATES } from './data/certificates';
+import { CERTIFICATES, acceptsDocument, isCertificateComplete } from './data/certificates';
 import { DOCUMENTS } from './data/documents';
+import './App.css';
 
 import ThreeCanvas from './components/ThreeCanvas';
 import WelcomeScreen from './components/WelcomeScreen';
@@ -12,7 +13,6 @@ import FloatingDocumentDeck from './components/FloatingDocumentDeck';
 import CertificateModal from './components/CertificateModal';
 import ResultScoreCardModal from './components/ResultScoreCardModal';
 import HelpTutorialModal from './components/HelpTutorialModal';
-import FeedbackToast from './components/FeedbackToast';
 import ScreenSaver from './components/ScreenSaver';
 import {
   CertificateUnlockAnimation,
@@ -21,11 +21,20 @@ import {
   MismatchAlert
 } from './components/ArcadeAnimations';
 
+// Fisher–Yates shuffle, so the deck never groups documents by certificate.
+const shuffle = (items) => {
+  const out = [...items];
+  for (let i = out.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [out[i], out[j]] = [out[j], out[i]];
+  }
+  return out;
+};
+
 export default function App() {
   const [gameState, setGameState] = useState('welcome'); // 'welcome' | 'playing' | 'scorecard' | 'screensaver'
   const [participantName, setParticipantName] = useState('');
   const [lang, setLang] = useState('en');
-  const theme = 'light'; // Light theme only for the project
   const [isAudioMuted, setIsAudioMuted] = useState(false);
 
   // 45-Second Arcade Timer
@@ -44,6 +53,7 @@ export default function App() {
   const [highestCombo, setHighestCombo] = useState(1);
   const [correctSortsCount, setCorrectSortsCount] = useState(0);
   const [selectedDocId, setSelectedDocId] = useState(null);
+  const [deck, setDeck] = useState(() => shuffle(DOCUMENTS));
 
   // Collected document IDs mapped by certificate ID
   const [collectedByCertificate, setCollectedByCertificate] = useState({
@@ -59,15 +69,6 @@ export default function App() {
   // Modals state
   const [activeModal, setActiveModal] = useState('none'); // 'none' | 'certificate' | 'help'
   const [previewCertId, setPreviewCertId] = useState('domicile');
-
-  // Feedback Toast
-  const [toast, setToast] = useState({ show: false, type: 'success', heading: '', sub: '', icon: '✨' });
-
-  // Mascot state
-  const [mascot, setMascot] = useState({
-    emotion: 'welcome',
-    text: 'Namaste! Drag floating document boxes downward into matching certificate baskets!'
-  });
 
   // 45-Second Timer Countdown (Pauses while modals are open)
   useEffect(() => {
@@ -139,6 +140,7 @@ export default function App() {
     });
     setUnlockedCertificates([]);
     setSelectedDocId(null);
+    setDeck(shuffle(DOCUMENTS));
     setActiveModal('none');
     setUnlockAnimCert(null);
     setIsTimeUpAnimActive(false);
@@ -166,13 +168,6 @@ export default function App() {
 
   const handleRetrySameParticipant = () => {
     handleStartGame(participantName);
-  };
-
-  const showToast = (type, heading, sub, icon = '✨') => {
-    setToast({ show: true, type, heading, sub, icon });
-    setTimeout(() => {
-      setToast(prev => ({ ...prev, show: false }));
-    }, 2400);
   };
 
   const handleToggleLang = () => {
@@ -206,8 +201,8 @@ export default function App() {
       return;
     }
 
-    // 2. Validate applicability for this certificate
-    const isValid = cert.mandatoryDocIds.includes(docId) || cert.optionalDocIds?.includes(docId);
+    // 2. Validate: the document must support one of this certificate's document types
+    const isValid = acceptsDocument(cert, docId);
 
     if (isValid) {
       // SUCCESS!
@@ -241,8 +236,8 @@ export default function App() {
         [bucketId]: updatedList
       }));
 
-      // Check if all mandatory prerequisites are satisfied for this certificate!
-      const allMandatoryMet = cert.mandatoryDocIds.every(id => updatedList.includes(id));
+      // Unlock once every mandatory document type has at least one supporting document
+      const allMandatoryMet = isCertificateComplete(cert, updatedList);
       if (allMandatoryMet && !unlockedCertificates.includes(bucketId)) {
         const nextUnlocked = [...unlockedCertificates, bucketId];
         setUnlockedCertificates(nextUnlocked);
@@ -287,19 +282,17 @@ export default function App() {
 
   return (
     <div
-      data-theme={theme}
-      className={`app-root theme-${theme}`}
+      className="app-root"
       style={{ position: 'relative', width: '100vw', height: '100vh', overflow: 'hidden' }}
     >
       {/* 3D Three.js Background Canvas */}
-      <ThreeCanvas isScreensaver={gameState === 'screensaver'} theme={theme} />
+      <ThreeCanvas isScreensaver={gameState === 'screensaver'} />
 
       {/* Screen 0: Interactive Arcade Screensaver / Attract Mode */}
       {gameState === 'screensaver' && (
         <ScreenSaver
           onWakeUp={() => setGameState('welcome')}
           lang={lang}
-          theme={theme}
         />
       )}
 
@@ -307,7 +300,6 @@ export default function App() {
       {gameState === 'welcome' && (
         <WelcomeScreen
           lang={lang}
-          theme={theme}
           onStartGame={handleStartGame}
           onToggleLang={handleToggleLang}
           isAudioMuted={isAudioMuted}
@@ -326,7 +318,6 @@ export default function App() {
             unlockedCount={unlockedCertificates.length}
             totalCertificates={CERTIFICATES.length}
             lang={lang}
-            theme={theme}
             onToggleLang={handleToggleLang}
             isAudioMuted={isAudioMuted}
             onToggleAudio={handleToggleAudio}
@@ -336,7 +327,7 @@ export default function App() {
 
           {/* Area A: Floating Prerequisite Document Boxes (At Top) */}
           <FloatingDocumentDeck
-            documents={DOCUMENTS}
+            documents={deck}
             collectedByCertificate={collectedByCertificate}
             selectedDocId={selectedDocId}
             lang={lang}
@@ -427,9 +418,6 @@ export default function App() {
         alertData={mismatchAlert}
         onDismiss={() => setMismatchAlert(null)}
       />
-
-      {/* Floating Feedback Toast */}
-      <FeedbackToast toast={toast} />
 
       {/* Certificate Modal */}
       {activeModal === 'certificate' && (

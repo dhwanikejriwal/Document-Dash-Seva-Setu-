@@ -23,6 +23,8 @@ lerna-debug.log*
 
 # Deploy settings (server address and login)
 deploy/deploy.env
+# Server reports from deploy/vm-report.sh (pushed to their own branch)
+logs/
 
 # Editor & OS files
 .vscode/*

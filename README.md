@@ -100,6 +100,11 @@ If the project is cloned on the server, deploy there directly, with no SSH:
 
 To update later: `git pull`, then `npm run deploy`.
 
+If a step fails, `bash deploy/vm-report.sh` runs `npm run deploy` (or the command you add after
+it), saves the output with versions, settings and nginx's test result to `logs/`, and after asking
+pushes it to the `vm-logs` branch so it can be read elsewhere. This repository is public, so the
+report has the kiosk token, password hashes and IP addresses removed. Look it over before you say yes.
+
 ### Deploy, roll back, preview
 
 ```bash

@@ -8,7 +8,8 @@
 //
 // Settings: deploy/deploy.env (copy deploy/deploy.env.example). The server side is
 // deploy/remote-install.sh; the nginx snippet is generated from deploy/nginx/document_dash.conf.template.
-// Needs ssh, scp and tar on this machine (built into Windows 10+, macOS and Linux).
+// Needs ssh, scp and tar on this machine (built into Windows 10+, macOS and Linux). With
+// DEPLOY_HOST=local it runs from a checkout on the server itself and installs there, without SSH.
 import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import os from 'node:os';
@@ -53,6 +54,7 @@ function readConfig() {
   const config = {
     host: env.DEPLOY_HOST,
     user: env.DEPLOY_USER,
+    local: env.DEPLOY_HOST === 'local',
     port: env.DEPLOY_PORT || '22',
     sshKey: env.DEPLOY_SSH_KEY || '',
     basePath,
@@ -69,8 +71,9 @@ function readConfig() {
     publicUrl
   };
 
-  if (!config.host || !config.user) fail('DEPLOY_HOST and DEPLOY_USER must be set in deploy/deploy.env');
+  if (!config.host || (!config.local && !config.user)) fail('DEPLOY_HOST and DEPLOY_USER must be set in deploy/deploy.env');
   if (!DRY_RUN && config.host === 'your.server.example') fail('deploy/deploy.env still has the example DEPLOY_HOST');
+  if (config.local && process.platform === 'win32') fail('DEPLOY_HOST=local deploys to this machine, so run it on the Linux server itself');
   if (!/^\/[A-Za-z0-9_-]+$/.test(basePath)) fail('DEPLOY_BASE_PATH must be one path segment, like /document_dash');
   for (const [name, value] of [
     ['DEPLOY_APP_DIR', config.appDir],
@@ -86,9 +89,10 @@ function readConfig() {
   return config;
 }
 
-// Runs a local command. Remote ones (ssh/scp) are only printed in a dry run.
-function run(command, args, { remote = false, ...options } = {}) {
-  if (DRY_RUN && remote) {
+// Runs a command on this machine. Ones that change the server (ssh/scp, or the install script
+// itself with DEPLOY_HOST=local) are only printed in a dry run.
+function run(command, args, { changesServer = false, ...options } = {}) {
+  if (DRY_RUN && changesServer) {
     console.log(`  [dry run] ${command} ${args.map(a => (/\s/.test(a) ? JSON.stringify(a) : a)).join(' ')}`);
     return 0;
   }
@@ -207,18 +211,9 @@ async function readAdminLogin() {
 }
 
 // Uploads the staged files to /tmp on the server, runs the install script there, cleans up.
+// With DEPLOY_HOST=local, runs the script on the staged files right here instead.
 // Returns the script's exit status.
 function runOnServer(config, workDir, files, scriptArgs) {
-  const target = `${config.user}@${config.host}`;
-  const remote = Object.fromEntries(Object.entries(files).map(([key, name]) => [key, `/tmp/${name}`]));
-
-  step(`Uploading to ${config.host}`);
-  const uploads = Object.values(files);
-  if (run('scp', [...scpArgs(config), ...uploads, `${target}:/tmp/`], { cwd: workDir, remote: true }) !== 0) {
-    fail(`upload to ${config.host} failed`);
-  }
-
-  step(`Installing on ${config.host}`);
   const env = {
     APP_NAME: config.appName,
     APP_DIR: config.appDir,
@@ -229,6 +224,23 @@ function runOnServer(config, workDir, files, scriptArgs) {
     KEEP_RELEASES: config.keepReleases,
     USE_SUDO: config.useSudo
   };
+
+  if (config.local) {
+    step('Installing on this machine');
+    const staged = Object.fromEntries(Object.entries(files).map(([key, name]) => [key, path.join(workDir, name)]));
+    return run('bash', [staged.script, ...scriptArgs(staged)], { env: { ...process.env, ...env }, changesServer: true });
+  }
+
+  const target = `${config.user}@${config.host}`;
+  const remote = Object.fromEntries(Object.entries(files).map(([key, name]) => [key, `/tmp/${name}`]));
+
+  step(`Uploading to ${config.host}`);
+  const uploads = Object.values(files);
+  if (run('scp', [...scpArgs(config), ...uploads, `${target}:/tmp/`], { cwd: workDir, changesServer: true }) !== 0) {
+    fail(`upload to ${config.host} failed`);
+  }
+
+  step(`Installing on ${config.host}`);
   const command = [
     ...Object.entries(env).map(([key, value]) => `${key}=${shq(value)}`),
     'bash', shq(remote.script), ...scriptArgs(remote).map(shq)
@@ -237,7 +249,7 @@ function runOnServer(config, workDir, files, scriptArgs) {
 
   // A terminal lets sudo ask for a password if the server needs one
   const tty = process.stdin.isTTY ? ['-t'] : [];
-  return run('ssh', [...sshArgs(config), ...tty, target, remoteCommand], { remote: true });
+  return run('ssh', [...sshArgs(config), ...tty, target, remoteCommand], { changesServer: true });
 }
 
 // Without the kiosk cookie, the game and its files must redirect to the login page, the login
@@ -285,7 +297,8 @@ async function main() {
   const tag = `${config.appName}-${new Date().toISOString().replace(/[-:T]/g, '').slice(0, 14)}`;
 
   const action = ROLLBACK ? 'Rolling back' : SET_ADMIN ? 'Setting the kiosk admin login for' : 'Deploying';
-  console.log(`${action} ${config.basePath}/ on ${config.user}@${config.host}${DRY_RUN ? ' (dry run)' : ''}`);
+  const where = config.local ? 'this machine' : `${config.user}@${config.host}`;
+  console.log(`${action} ${config.basePath}/ on ${where}${DRY_RUN ? ' (dry run)' : ''}`);
 
   let status;
   let admin;

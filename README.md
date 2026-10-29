@@ -88,6 +88,18 @@ adds its own nginx snippet and never edits the existing configuration.
    npm run deploy:admin
    ```
 
+### Deploying from the server itself
+
+If the project is cloned on the server, deploy there directly, with no SSH:
+
+1. Install Node.js 20.19+ (or 22.12+), then run `npm ci` in the project folder.
+2. Copy `deploy/deploy.env.example` to `deploy/deploy.env` and set `DEPLOY_HOST=local`
+   (`DEPLOY_USER` isn't needed).
+3. Run the same `npm run deploy`, `deploy:admin` and `deploy:rollback` commands as a user with
+   `sudo` rights. Don't run them with `sudo npm ...`; the script uses `sudo` itself where needed.
+
+To update later: `git pull`, then `npm run deploy`.
+
 ### Deploy, roll back, preview
 
 ```bash

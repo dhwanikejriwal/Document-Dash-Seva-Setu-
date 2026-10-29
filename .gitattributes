@@ -1,0 +1,4 @@
+# Files that run or are read on the Linux server must keep LF line endings,
+# even when checked out on Windows
+*.sh text eol=lf
+deploy/nginx/* text eol=lf

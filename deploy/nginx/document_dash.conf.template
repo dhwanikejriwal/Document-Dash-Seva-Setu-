@@ -1,0 +1,82 @@
+# Document Dash: served at __BASE__/ from __WEB_ROOT____BASE__ (a symlink to the live release).
+#
+# Generated and installed by `npm run deploy`. To enable it, add this one line inside the
+# existing site's server { } block (nothing else in that server needs to change):
+#
+#     include __SNIPPET_PATH__;
+#
+# Only URLs under __BASE__ are affected. Game caching uses `expires` rather than `add_header`,
+# so any headers the server already sets (security headers, HSTS) still apply to the game.
+# Only the two login endpoints use `add_header`, to set the cookie.
+#
+# Kiosk login: the game and its files are only served to devices holding the kiosk cookie.
+# Others are sent to __BASE__/login/, where an admin ID/password (checked against
+# __HTPASSWD__, set with `npm run deploy:admin`) grants the cookie for a year.
+# The cookie value is a random token kept only on the server; the installer fills it in.
+
+# /document_dash -> /document_dash/
+location = __BASE__ {
+    return 301 __BASE__/;
+}
+
+# --- Kiosk login (open to everyone; contains no game code) ---
+
+location ^~ __BASE__/login/ {
+    root __WEB_ROOT__;
+    index index.html;
+    try_files $uri $uri/ __BASE__/login/index.html;
+    expires -1;
+}
+
+# Checks the admin ID/password and, if right, gives this device the kiosk cookie.
+# Wrong credentials answer 403 rather than 401, so the browser doesn't pop up its own login box.
+location = __BASE__/__login {
+    auth_basic "Document Dash kiosk";
+    auth_basic_user_file __HTPASSWD__;
+    error_page 401 =403 __BASE__/login/denied.txt;
+
+    # Only sent with the successful 200 response (no `always`), never on a failed login
+    add_header Set-Cookie "dd_kiosk=__KIOSK_TOKEN__; Path=__BASE__/; Max-Age=31536000; HttpOnly; SameSite=Lax__COOKIE_SECURE__";
+    add_header Cache-Control "no-store";
+
+    root __WEB_ROOT__;
+    try_files __BASE__/login/ok.txt =404;
+}
+
+# Logs this device out (for admins): __BASE__/__logout
+location = __BASE__/__logout {
+    add_header Set-Cookie "dd_kiosk=; Path=__BASE__/; Max-Age=0; HttpOnly; SameSite=Lax__COOKIE_SECURE__";
+    return 302 __BASE__/login/;
+}
+
+# --- The game (kiosk cookie required) ---
+# The cookie check is repeated in each location below: nginx doesn't run an outer location's
+# `if` for requests that a nested location handles.
+
+# ^~ keeps the site's own regex locations from capturing these requests
+location ^~ __BASE__/ {
+    if ($cookie_dd_kiosk != "__KIOSK_TOKEN__") {
+        return 302 __BASE__/login/;
+    }
+    root __WEB_ROOT__;
+    index index.html;
+    try_files $uri $uri/ __BASE__/index.html;
+
+    # Build files carry a content hash in their names, so they can be cached for a year
+    location ^~ __BASE__/assets/ {
+        if ($cookie_dd_kiosk != "__KIOSK_TOKEN__") {
+            return 302 __BASE__/login/;
+        }
+        expires 1y;
+        access_log off;
+        try_files $uri =404;
+    }
+
+    # The page itself is always revalidated, so a new deployment shows up immediately
+    location = __BASE__/index.html {
+        if ($cookie_dd_kiosk != "__KIOSK_TOKEN__") {
+            return 302 __BASE__/login/;
+        }
+        expires -1;
+    }
+}

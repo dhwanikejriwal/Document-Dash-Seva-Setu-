@@ -21,6 +21,9 @@ lerna-debug.log*
 .env.test.local
 .env.production.local
 
+# Deploy settings (server address and login)
+deploy/deploy.env
+
 # Editor & OS files
 .vscode/*
 !.vscode/extensions.json

@@ -1,16 +1,138 @@
 import React, { useEffect } from 'react';
 import confetti from 'canvas-confetti';
-import { Flag, Star, User, ScrollText, Lock, Users, RotateCcw, Hourglass } from 'lucide-react';
-import { CERTIFICATES } from '../data/certificates';
+import {
+  Flag, Star, User, ScrollText, Users, RotateCcw, Hourglass, Award, CircleCheck, CircleX, Timer, CloudOff, RotateCw
+} from 'lucide-react';
+import { CERTIFICATES, isRequirementMet, metRequirementCount, mandatoryRequirements } from '../data/certificates';
+import { DOCUMENTS } from '../data/documents';
+import { formatTimeTaken } from '../api/certificate';
 import Icon from './Icon';
 import './ResultScoreCardModal.css';
 
+const DOCUMENT_BY_ID = Object.fromEntries(DOCUMENTS.map(doc => [doc.id, doc]));
+
+// Warn before the kiosk clears this score card for the next participant
+const RESET_WARNING_SECONDS = 20;
+
+// How many accepted documents to suggest for a missed document type
+const MISSED_EXAMPLES = 2;
+
+// The winner's certificate from the certificate service, shown as a QR code to scan.
+// `certificate.status` is 'loading', 'ready' or 'error' (see requestWinnerCertificate in App).
+function WinnerCertificatePanel({ certificate, timeTakenSeconds, lang, onRetry }) {
+  const isEn = lang === 'en';
+  const { status } = certificate;
+
+  const copy = {
+    ready: {
+      title: isEn ? 'Your certificate is ready!' : 'आपका प्रमाण पत्र तैयार है!',
+      body: isEn ? 'Scan this QR code with your phone to download it.' : 'इसे डाउनलोड करने के लिए अपने फ़ोन से यह क्यूआर कोड स्कैन करें।'
+    },
+    error: {
+      title: isEn ? "Couldn't create your certificate" : 'प्रमाण पत्र नहीं बन सका',
+      body: isEn ? 'Check the internet connection and try again.' : 'इंटरनेट कनेक्शन जांचें और फिर से कोशिश करें।'
+    },
+    loading: {
+      title: isEn ? 'Creating your certificate…' : 'आपका प्रमाण पत्र बन रहा है…',
+      body: isEn ? 'This takes a few seconds.' : 'इसमें कुछ सेकंड लगते हैं।'
+    }
+  }[status] || {};
+
+  return (
+    <section className={`winner-cert winner-cert--${status}`} aria-live="polite">
+      <div className="winner-cert-qr">
+        {status === 'ready' && (
+          <img src={certificate.qrCode} alt={isEn ? 'QR code for your certificate' : 'आपके प्रमाण पत्र का क्यूआर कोड'} />
+        )}
+        {status === 'error' && <Icon as={CloudOff} />}
+        {status === 'loading' && <span className="winner-cert-spinner" aria-hidden="true" />}
+      </div>
+
+      <div className="winner-cert-text">
+        <strong className="winner-cert-title">{copy.title}</strong>
+        <p className="winner-cert-body">{copy.body}</p>
+        <span className="winner-cert-time">
+          <Icon as={Timer} /> {isEn ? 'Time taken' : 'लिया गया समय'}: {formatTimeTaken(timeTakenSeconds)}
+        </span>
+        {status === 'error' && (
+          <button type="button" className="winner-cert-retry" onClick={onRetry}>
+            <Icon as={RotateCw} /> {isEn ? 'Try again' : 'फिर से कोशिश करें'}
+          </button>
+        )}
+      </div>
+    </section>
+  );
+}
+
+// One certificate in the end-of-round recap: each required document type, ticked with
+// the document the player used, or crossed with examples of what would have fitted.
+function CertificateRecap({ certificate, collectedDocIds, isUnlocked, lang, onViewCertificate }) {
+  const isEn = lang === 'en';
+  const docTitle = doc => (isEn ? doc.title_en : doc.title_hi);
+  // Optional types only appear when the player actually used one
+  const rows = certificate.requirements.filter(req => req.mandatory || isRequirementMet(req, collectedDocIds));
+
+  return (
+    <section
+      className={`recap-card ${isUnlocked ? 'is-complete' : ''}`}
+      style={{ '--cert-color': certificate.color, '--cert-solid': certificate.solid }}
+    >
+      <header className="recap-card-head">
+        <span className="recap-card-icon"><Icon as={certificate.icon} /></span>
+        <strong className="recap-card-name">{isEn ? certificate.name_en : certificate.name_hi}</strong>
+        <span className="recap-card-count">
+          {metRequirementCount(certificate, collectedDocIds)}/{mandatoryRequirements(certificate).length}
+        </span>
+      </header>
+
+      <ul className="recap-list">
+        {rows.map(req => {
+          const filledBy = DOCUMENT_BY_ID[collectedDocIds.find(id => req.docIds.includes(id))];
+          const hasChoices = req.docIds.length > 1;
+          const examples = req.docIds.slice(0, MISSED_EXAMPLES).map(id => docTitle(DOCUMENT_BY_ID[id]));
+          const moreCount = req.docIds.length - examples.length;
+
+          return (
+            <li key={req.id} className={`recap-row ${filledBy ? 'is-met' : 'is-missed'}`}>
+              <Icon as={filledBy ? CircleCheck : CircleX} className="recap-status" />
+              <div className="recap-row-text">
+                <span className="recap-type">
+                  {isEn ? req.name_en : req.name_hi}
+                  {!req.mandatory && <span className="recap-optional">{isEn ? 'Optional' : 'वैकल्पिक'}</span>}
+                </span>
+                {/* A single-document type is named after its document, so only spell out real choices */}
+                {hasChoices && filledBy && <span className="recap-detail">{docTitle(filledBy)}</span>}
+                {hasChoices && !filledBy && (
+                  <span className="recap-detail">
+                    {isEn ? 'e.g. ' : 'जैसे '}
+                    {examples.join(', ')}
+                    {moreCount > 0 && (isEn ? ` +${moreCount} more` : ` +${moreCount} और`)}
+                  </span>
+                )}
+              </div>
+            </li>
+          );
+        })}
+      </ul>
+
+      {isUnlocked && (
+        <button type="button" className="recap-view-btn" onClick={() => onViewCertificate(certificate.id)}>
+          <Icon as={ScrollText} /> {isEn ? 'View certificate' : 'प्रमाण पत्र देखें'}
+        </button>
+      )}
+    </section>
+  );
+}
+
 export default function ResultScoreCardModal({
   participantName,
-  score,
   unlockedCertificates = [],
+  collectedByCertificate = {},
   correctSortsCount = 0,
-  highestCombo = 1,
+  wrongSortsCount = 0,
+  winnerCertificate = { status: 'idle' },
+  timeTakenSeconds = 0,
+  onRetryCertificate,
   timeExpired = true,
   lang = 'en',
   idleSecondsLeft = Infinity,
@@ -18,8 +140,6 @@ export default function ResultScoreCardModal({
   onNextParticipant,
   onRetry
 }) {
-  // Warn before the kiosk clears this score card for the next participant
-  const RESET_WARNING_SECONDS = 20;
   const isEn = lang === 'en';
   const unlockedCount = unlockedCertificates.length;
 
@@ -95,97 +215,86 @@ export default function ResultScoreCardModal({
           </div>
         </div>
 
-        {/* Participant Name Badge */}
-        <div className="scorecard-participant-banner">
-          <div className="participant-info-left">
-            <span className="banner-sub-label">
-              {isEn ? 'Citizen Participant / नागरिक प्रतिभागी' : 'नागरिक प्रतिभागी'}
-            </span>
-            <h3 className="banner-participant-name">
-              <Icon as={User} /> {participantName || (isEn ? 'Citizen Participant' : 'नागरिक')}
-            </h3>
+        {/* Player, round summary and (on a win) the certificate QR code side by side */}
+        <div className={`scorecard-top ${isQuestComplete ? 'has-certificate' : ''}`}>
+          <div className="scorecard-top-main">
+            {/* Participant Name Badge */}
+            <div className="scorecard-participant-banner">
+              <div className="participant-info-left">
+                <span className="banner-sub-label">{isEn ? 'Participant' : 'प्रतिभागी'}</span>
+                <h3 className="banner-participant-name">
+                  <Icon as={User} /> {participantName || (isEn ? 'Participant' : 'प्रतिभागी')}
+                </h3>
+              </div>
+
+              <div
+                className="rank-award-badge"
+                style={{
+                  color: rank.color,
+                  background: rank.bg,
+                  borderColor: rank.border
+                }}
+              >
+                {Array.from({ length: rank.stars }, (_, i) => <Icon key={i} as={Star} fill="currentColor" />)}
+                {rank.stars > 0 && ' '}
+                {isEn ? rank.title_en : rank.title_hi}
+              </div>
+            </div>
+
+            {/* Round summary */}
+            <div className="scorecard-summary">
+              <span className="summary-item">
+                <Icon as={Award} />
+                <strong>{unlockedCount}/{CERTIFICATES.length}</strong> {isEn ? 'certificates complete' : 'प्रमाण पत्र पूर्ण'}
+              </span>
+              <span className="summary-item summary-correct">
+                <Icon as={CircleCheck} />
+                <strong>{correctSortsCount}</strong>{' '}
+                {isEn ? (correctSortsCount === 1 ? 'correct match' : 'correct matches') : 'सही मिलान'}
+              </span>
+              <span className="summary-item summary-wrong">
+                <Icon as={CircleX} />
+                <strong>{wrongSortsCount}</strong>{' '}
+                {isEn ? (wrongSortsCount === 1 ? 'wrong try' : 'wrong tries') : 'गलत प्रयास'}
+              </span>
+            </div>
+
+            {!isQuestComplete && (
+              <p className="scorecard-earn-hint">
+                <Icon as={Award} />
+                {isEn
+                  ? 'Complete all 4 certificates within a minute to earn your certificate.'
+                  : 'अपना प्रमाण पत्र पाने के लिए एक मिनट में चारों प्रमाण पत्र पूरे करें।'}
+              </p>
+            )}
           </div>
 
-          <div
-            className="rank-award-badge"
-            style={{
-              color: rank.color,
-              background: rank.bg,
-              borderColor: rank.border
-            }}
-          >
-            {Array.from({ length: rank.stars }, (_, i) => <Icon key={i} as={Star} fill="currentColor" />)}
-            {rank.stars > 0 && ' '}
-            {isEn ? rank.title_en : rank.title_hi}
-          </div>
+          {isQuestComplete && (
+            <WinnerCertificatePanel
+              certificate={winnerCertificate}
+              timeTakenSeconds={timeTakenSeconds}
+              lang={lang}
+              onRetry={onRetryCertificate}
+            />
+          )}
         </div>
 
-        {/* Stats Grid */}
-        <div className="scorecard-stats-grid">
-          <div className="score-stat-tile stat-cert">
-            <span className="stat-label">{isEn ? 'Certificates' : 'प्रमाण पत्र'}</span>
-            <strong className="stat-value">{unlockedCount} / 4</strong>
-            <span className="stat-pill">{Math.round((unlockedCount / 4) * 100)}% Complete</span>
-          </div>
-
-          <div className="score-stat-tile stat-score">
-            <span className="stat-label">{isEn ? 'Total Points' : 'अंतिम स्कोर'}</span>
-            <strong className="stat-value">{score}</strong>
-            <span className="stat-pill">XP Earned</span>
-          </div>
-
-          <div className="score-stat-tile stat-accuracy">
-            <span className="stat-label">{isEn ? 'Correct Sorts' : 'सफल दस्तावेज़'}</span>
-            <strong className="stat-value">{correctSortsCount}</strong>
-            <span className="stat-pill">Accurate</span>
-          </div>
-
-          <div className="score-stat-tile stat-combo">
-            <span className="stat-label">{isEn ? 'Max Combo' : 'अधिकतम कॉम्बो'}</span>
-            <strong className="stat-value">{highestCombo}x</strong>
-            <span className="stat-pill">Multiplier</span>
-          </div>
-        </div>
-
-        {/* Generated Certificates Showcase */}
-        <div className="scorecard-cert-section">
-          <h4 className="cert-section-heading">
-            {isEn ? 'Generated Digital Certificates:' : 'उत्पन्न डिजिटल प्रमाण पत्र:'}
+        {/* Learning recap: what each certificate needs and what the player matched or missed */}
+        <div className="scorecard-recap">
+          <h4 className="recap-heading">
+            {isEn ? 'What each certificate needs' : 'हर प्रमाण पत्र के लिए क्या चाहिए'}
           </h4>
-
-          <div className="scorecard-certs-row">
-            {CERTIFICATES.map(c => {
-              const isThisUnlocked = unlockedCertificates.includes(c.id);
-              return (
-                <div
-                  key={c.id}
-                  className={`scorecard-cert-card ${isThisUnlocked ? 'card-unlocked' : 'card-locked'}`}
-                  style={{
-                    '--cert-color': c.color,
-                    borderColor: isThisUnlocked ? c.color : 'rgba(var(--white-rgb), 0.1)'
-                  }}
-                >
-                  <span className="cert-card-icon"><Icon as={c.icon} /></span>
-                  <span className="cert-card-title">
-                    {isEn ? c.name_en.split(' ')[0] : c.name_hi.split(' ')[0]}
-                  </span>
-                  {isThisUnlocked ? (
-                    <button
-                      type="button"
-                      onClick={() => onViewCertificate(c.id)}
-                      className="cert-card-view-btn"
-                      style={{ background: c.gradient }}
-                    >
-                      <Icon as={ScrollText} /> {isEn ? 'View Cert' : 'देखें'}
-                    </button>
-                  ) : (
-                    <span className="cert-card-locked-text">
-                      <Icon as={Lock} /> {isEn ? 'Locked' : 'अपूर्ण'}
-                    </span>
-                  )}
-                </div>
-              );
-            })}
+          <div className="recap-grid">
+            {CERTIFICATES.map(cert => (
+              <CertificateRecap
+                key={cert.id}
+                certificate={cert}
+                collectedDocIds={collectedByCertificate[cert.id] || []}
+                isUnlocked={unlockedCertificates.includes(cert.id)}
+                lang={lang}
+                onViewCertificate={onViewCertificate}
+              />
+            ))}
           </div>
         </div>
 
@@ -196,7 +305,7 @@ export default function ResultScoreCardModal({
             className="scorecard-btn-next"
             onClick={onNextParticipant}
           >
-            <Icon as={Users} /> {isEn ? 'NEXT PARTICIPANT (अगला प्रतिभागी)' : 'अगला प्रतिभागी (नया सत्र)'}
+            <Icon as={Users} /> {isEn ? 'NEXT PARTICIPANT' : 'अगला प्रतिभागी'}
           </button>
 
           <button
@@ -204,7 +313,7 @@ export default function ResultScoreCardModal({
             className="scorecard-btn-retry"
             onClick={onRetry}
           >
-            <Icon as={RotateCcw} /> {isEn ? 'Try Again (पुनः प्रयास)' : 'पुनः प्रयास करें'}
+            <Icon as={RotateCcw} /> {isEn ? 'Try Again' : 'पुनः प्रयास करें'}
           </button>
         </div>
 

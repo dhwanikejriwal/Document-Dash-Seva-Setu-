@@ -1,5 +1,5 @@
 import React, { useEffect, useLayoutEffect, useRef } from 'react';
-import { Trophy, Star, Zap, Timer, Flag, Sparkles, Flame, Target, CircleX } from 'lucide-react';
+import { Trophy, Timer, Flag, Sparkles, Flame, Target, CircleX } from 'lucide-react';
 import Icon from './Icon';
 import './ArcadeAnimations.css';
 
@@ -19,8 +19,9 @@ function useTimeout(callback, delay, trigger) {
   }, [delay, trigger]);
 }
 
-// 1. Full-Screen Certificate Unlocked Trophy Slam Animation (Like 1-2-3 Countdown)
-export function CertificateUnlockAnimation({ certificate, lang, onFinish }) {
+// 1. Certificate completed: a small notice over the empty middle of the arena.
+// It ignores touches (pointer-events: none), so play continues underneath it.
+export function CertificateUnlockNotice({ certificate, lang, onFinish }) {
   const isEn = lang === 'en';
 
   useTimeout(onFinish, 1800, certificate);
@@ -28,36 +29,18 @@ export function CertificateUnlockAnimation({ certificate, lang, onFinish }) {
   if (!certificate) return null;
 
   return (
-    <div className="arcade-fullscreen-overlay unlock-celebration-overlay" onClick={onFinish}>
-      {/* Concentric Golden Shockwave Rings */}
-      <div className="unlock-shockwave-ring ring-1" />
-      <div className="unlock-shockwave-ring ring-2" />
-      <div className="unlock-shockwave-ring ring-3" />
-
-      {/* Rotating Sunburst Rays */}
-      <div className="unlock-sunburst-rays" />
-
-      <div className="unlock-content-card">
-        {/* Giant Trophy / Stamp with Slam Animation */}
-        <div className="unlock-trophy-icon" style={{ '--cert-color': certificate.color }}>
-          <span className="trophy-emoji"><Icon as={Trophy} /></span>
-          <span className="cert-sub-emoji"><Icon as={certificate.icon} /></span>
-        </div>
-
-        {/* Slamming Glowing Title */}
-        <div className="unlock-text-group">
-          <div className="unlock-eyebrow-badge">
-            <Icon as={Star} /> {isEn ? 'CERTIFICATE UNLOCKED!' : 'प्रमाण पत्र अनलॉक!'} <Icon as={Star} />
-          </div>
-          <h1 className="unlock-main-name">
-            {isEn ? certificate.name_en : certificate.name_hi}
-          </h1>
-          <div className="unlock-bonus-pill">
-            <span><Icon as={Zap} /> +500 XP BONUS!</span>
-            <span>•</span>
-            <span>100% COMPLETE!</span>
-          </div>
-        </div>
+    <div
+      key={certificate.id}
+      className="unlock-notice"
+      role="status"
+      style={{ '--cert-color': certificate.color, '--cert-solid': certificate.solid }}
+    >
+      <span className="unlock-notice-icon"><Icon as={certificate.icon} /></span>
+      <div className="unlock-notice-text">
+        <span className="unlock-notice-eyebrow">
+          <Icon as={Trophy} /> {isEn ? 'Certificate complete!' : 'प्रमाण पत्र पूर्ण!'}
+        </span>
+        <strong className="unlock-notice-name">{isEn ? certificate.name_en : certificate.name_hi}</strong>
       </div>
     </div>
   );

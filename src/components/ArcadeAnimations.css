@@ -11,134 +11,6 @@
   animation: overlayFadeIn 0.25s ease-out forwards;
 }
 
-.unlock-celebration-overlay {
-  background: radial-gradient(circle at center, rgba(var(--amber-50-rgb), 0.98), rgba(var(--amber-100-rgb), 0.98));
-}
-
-.unlock-shockwave-ring {
-  position: absolute;
-  border-radius: 50%;
-  pointer-events: none;
-  border: 4px solid var(--gold-300);
-  box-shadow: 0 0 45px rgba(var(--gold-300-rgb), 0.8), inset 0 0 35px rgba(var(--gold-300-rgb), 0.5);
-}
-
-.unlock-shockwave-ring.ring-1 {
-  width: 320px;
-  height: 320px;
-  animation: shockwavePulse 1.2s var(--ease-out) infinite;
-}
-
-.unlock-shockwave-ring.ring-2 {
-  width: 500px;
-  height: 500px;
-  animation: shockwavePulse 1.2s var(--ease-out) 0.3s infinite;
-}
-
-.unlock-shockwave-ring.ring-3 {
-  width: 680px;
-  height: 680px;
-  animation: shockwavePulse 1.2s var(--ease-out) 0.6s infinite;
-}
-
-.unlock-sunburst-rays {
-  position: absolute;
-  width: 900px;
-  height: 900px;
-  background: conic-gradient(
-    from 0deg,
-    rgba(var(--gold-300-rgb), 0.15) 0deg 20deg,
-    transparent 20deg 45deg,
-    rgba(var(--cyan-400-rgb), 0.12) 45deg 65deg,
-    transparent 65deg 90deg,
-    rgba(var(--gold-300-rgb), 0.15) 90deg 110deg,
-    transparent 110deg 135deg,
-    rgba(var(--cyan-400-rgb), 0.12) 135deg 155deg,
-    transparent 155deg 180deg,
-    rgba(var(--gold-300-rgb), 0.15) 180deg 200deg,
-    transparent 200deg 225deg,
-    rgba(var(--cyan-400-rgb), 0.12) 225deg 245deg,
-    transparent 245deg 270deg,
-    rgba(var(--gold-300-rgb), 0.15) 270deg 290deg,
-    transparent 290deg 315deg,
-    rgba(var(--cyan-400-rgb), 0.12) 315deg 335deg,
-    transparent 335deg 360deg
-  );
-  border-radius: 50%;
-  animation: sunburstRotate 18s linear infinite;
-  pointer-events: none;
-}
-
-.unlock-content-card {
-  position: relative;
-  z-index: 10;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  padding: 30px;
-  animation: trophySlamIn 0.5s var(--ease-spring) forwards;
-}
-
-.unlock-trophy-icon {
-  position: relative;
-  width: 140px;
-  height: 140px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 20px;
-}
-
-.unlock-trophy-icon .trophy-emoji {
-  color: var(--amber-600);
-  font-size: 96px;
-  filter: drop-shadow(0 0 35px rgba(var(--gold-300-rgb), 0.9));
-  animation: trophyWiggle 1.4s ease-in-out infinite alternate;
-}
-
-.unlock-trophy-icon .cert-sub-emoji {
-  color: var(--cert-color);
-  position: absolute;
-  bottom: 0;
-  right: 5px;
-  font-size: var(--text-7xl);
-  filter: drop-shadow(0 0 15px rgba(var(--cyan-400-rgb), 0.8));
-}
-
-.unlock-eyebrow-badge {
-  font-size: var(--text-base);
-  font-weight: var(--fw-heavy);
-  letter-spacing: 2.5px;
-  color: var(--gold-300);
-  text-shadow: 0 0 20px rgba(var(--gold-300-rgb), 0.8);
-  margin-bottom: 8px;
-}
-
-.unlock-main-name {
-  font-size: clamp(2.5rem, 6vw, 4.2rem);
-  font-weight: var(--fw-heavy);
-  color: var(--ink-950);
-  text-shadow: 0 4px 20px rgba(var(--gold-500-rgb), 0.4);
-  margin-bottom: 16px;
-  text-transform: uppercase;
-}
-
-.unlock-bonus-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 14px;
-  background: var(--white);
-  border: 2.5px solid var(--gold-500);
-  padding: 12px 28px;
-  border-radius: var(--radius-pill);
-  color: var(--amber-600);
-  font-size: var(--text-xl);
-  font-weight: var(--fw-heavy);
-  box-shadow: 0 8px 30px rgba(var(--gold-500-rgb), 0.4);
-  animation: pulseGold 1.5s infinite alternate;
-}
-
 /* 3. Full-Screen TIME'S UP! Animation */
 .timeup-finish-overlay {
   background: radial-gradient(circle at center, rgba(var(--rose-50-rgb), 0.98), rgba(var(--red-100-rgb), 0.98));
@@ -307,31 +179,6 @@
   }
 }
 
-@keyframes sunburstRotate {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-@keyframes trophySlamIn {
-  0% {
-    transform: scale(0.1) translateY(-100px);
-    opacity: 0;
-  }
-  70% {
-    transform: scale(1.15) translateY(10px);
-    opacity: 1;
-  }
-  100% {
-    transform: scale(1) translateY(0);
-    opacity: 1;
-  }
-}
-
-@keyframes trophyWiggle {
-  0% { transform: rotate(-5deg) scale(1); }
-  100% { transform: rotate(5deg) scale(1.08); }
-}
-
 @keyframes timeUpSlam {
   0% { transform: scale(0.2); opacity: 0; }
   70% { transform: scale(1.2); opacity: 1; }
@@ -394,4 +241,64 @@
     transform: translate(-50%, -70%) scale(0.8);
     opacity: 0;
   }
+}
+
+/* Certificate completed: compact notice in the empty band above the baskets.
+   It never takes touches, so the race carries on underneath it. */
+.unlock-notice {
+  position: fixed;
+  top: 58%;
+  left: 50%;
+  z-index: 9000;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-5) var(--space-3) var(--space-3);
+  border-radius: var(--radius-pill);
+  background: var(--white);
+  border: 2px solid var(--cert-color);
+  box-shadow: var(--shadow-lg), 0 0 0 6px rgba(var(--gold-300-rgb), 0.25);
+  pointer-events: none;
+  animation: unlockNotice 1.8s var(--ease-out) forwards;
+}
+
+.unlock-notice-icon {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--cert-solid);
+  color: var(--white);
+  font-size: var(--text-2xl);
+}
+
+.unlock-notice-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.unlock-notice-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--text-2xs);
+  font-weight: var(--fw-heavy);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--amber-600);
+}
+
+.unlock-notice-name {
+  font-size: var(--text-lg);
+  font-weight: var(--fw-heavy);
+  color: var(--color-text);
+}
+
+/* Pops in, holds, then drifts up and fades (matches the 1.8 s timer) */
+@keyframes unlockNotice {
+  0% { opacity: 0; transform: translate(-50%, -40%) scale(0.9); }
+  12% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  82% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  100% { opacity: 0; transform: translate(-50%, -70%) scale(0.98); }
 }

@@ -3,6 +3,8 @@ import confetti from 'canvas-confetti';
 import { sound } from './audio';
 import { CERTIFICATES, acceptsDocument, isCertificateComplete } from './data/certificates';
 import { DOCUMENTS } from './data/documents';
+import { requestCertificate } from './api/certificate';
+import { LAUNCHER_URL } from './config';
 import './App.css';
 
 import ThreeCanvas from './components/ThreeCanvas';
@@ -14,7 +16,7 @@ import CertificateModal from './components/CertificateModal';
 import ResultScoreCardModal from './components/ResultScoreCardModal';
 import HelpTutorialModal from './components/HelpTutorialModal';
 import {
-  CertificateUnlockAnimation,
+  CertificateUnlockNotice,
   TimeUpAnimation,
   ComboBurstBanner,
   MismatchAlert
@@ -24,7 +26,8 @@ import {
 const RACE_SECONDS = 60;
 
 // Kiosk: with no touch for this long mid-round or on the score card, the participant
-// (whose name is on screen) is cleared and the kiosk returns to the start screen.
+// (whose name is on screen) is cleared and the kiosk returns to the start screen, or to the
+// game selection screen when LAUNCHER_URL is set.
 const KIOSK_IDLE_SECONDS = 60;
 const ACTIVITY_EVENTS = ['pointerdown', 'keydown', 'touchstart'];
 
@@ -54,11 +57,10 @@ export default function App() {
   const [activeComboBurst, setActiveComboBurst] = useState(null);
   const [mismatchAlert, setMismatchAlert] = useState(null);
 
-  // Gameplay Scoring & Accuracy Stats
-  const [score, setScore] = useState(0);
+  // Match streak (for the in-game combo banner) and accuracy for the score card recap
   const [combo, setCombo] = useState(1);
-  const [highestCombo, setHighestCombo] = useState(1);
   const [correctSortsCount, setCorrectSortsCount] = useState(0);
+  const [wrongSortsCount, setWrongSortsCount] = useState(0);
   const [selectedDocId, setSelectedDocId] = useState(null);
   const [deck, setDeck] = useState(() => shuffle(DOCUMENTS));
 
@@ -72,6 +74,13 @@ export default function App() {
 
   // Array of certificate IDs that are 100% unlocked
   const [unlockedCertificates, setUnlockedCertificates] = useState([]);
+
+  // Winner's certificate from the certificate service:
+  // { status: 'idle' | 'loading' | 'ready' | 'error', qrCode?, certificateUrl? }
+  const [winnerCertificate, setWinnerCertificate] = useState({ status: 'idle' });
+  const [winSeconds, setWinSeconds] = useState(0);
+  // Bumped every round, so a late certificate response can't land on the next player's screen
+  const roundRef = useRef(0);
 
   // Modals state
   const [activeModal, setActiveModal] = useState('none'); // 'none' | 'certificate' | 'help'
@@ -124,6 +133,24 @@ export default function App() {
     }
   }, [idleSecondsLeft]);
 
+  // With a game selection screen, an idle start screen hands the kiosk back to it
+  useEffect(() => {
+    if (gameState !== 'welcome' || !LAUNCHER_URL) return;
+
+    let idleTimer;
+    const restartIdle = () => {
+      clearTimeout(idleTimer);
+      idleTimer = setTimeout(() => window.location.assign(LAUNCHER_URL), KIOSK_IDLE_SECONDS * 1000);
+    };
+    restartIdle();
+    ACTIVITY_EVENTS.forEach(ev => window.addEventListener(ev, restartIdle));
+
+    return () => {
+      clearTimeout(idleTimer);
+      ACTIVITY_EVENTS.forEach(ev => window.removeEventListener(ev, restartIdle));
+    };
+  }, [gameState]);
+
   // Kiosk: a long press must not open the browser's context menu
   useEffect(() => {
     const blockContextMenu = (e) => e.preventDefault();
@@ -136,12 +163,28 @@ export default function App() {
     setIsTimeUpAnimActive(true);
   };
 
+  // Asks the certificate service for the winner's certificate. Runs once per won game, plus
+  // again only from Retry, because every call creates a new certificate on the server.
+  const requestWinnerCertificate = (username, timeTakenSeconds) => {
+    const round = roundRef.current;
+    setWinnerCertificate({ status: 'loading' });
+    requestCertificate({ username, timeTakenSeconds })
+      .then(data => {
+        if (roundRef.current === round) setWinnerCertificate({ status: 'ready', ...data });
+      })
+      .catch(() => {
+        if (roundRef.current === round) setWinnerCertificate({ status: 'error' });
+      });
+  };
+
   const handleStartGame = (name) => {
+    roundRef.current += 1;
+    setWinnerCertificate({ status: 'idle' });
+    setWinSeconds(0);
     setParticipantName(name);
-    setScore(0);
     setCombo(1);
-    setHighestCombo(1);
     setCorrectSortsCount(0);
+    setWrongSortsCount(0);
     setTimeLeft(RACE_SECONDS);
     setCollectedByCertificate({
       domicile: [],
@@ -161,10 +204,17 @@ export default function App() {
   };
 
   const handleNextParticipant = () => {
+    // Launched from the game selection screen: hand the kiosk back to it
+    if (LAUNCHER_URL) {
+      window.location.assign(LAUNCHER_URL);
+      return;
+    }
+
     sound.playPickup();
+    roundRef.current += 1;
+    setWinnerCertificate({ status: 'idle' });
     setGameState('welcome');
     setParticipantName('');
-    setScore(0);
     setUnlockedCertificates([]);
     setCollectedByCertificate({
       domicile: [],
@@ -224,11 +274,9 @@ export default function App() {
       sound.playSuccess();
       const newCombo = combo + 1;
       setCombo(newCombo);
-      if (newCombo > highestCombo) setHighestCombo(newCombo);
       setCorrectSortsCount(prev => prev + 1);
 
       const points = 150 * combo;
-      setScore(prev => prev + points);
 
       // Trigger floating arcade combo burst
       setActiveComboBurst({
@@ -257,6 +305,15 @@ export default function App() {
         const nextUnlocked = [...unlockedCertificates, bucketId];
         setUnlockedCertificates(nextUnlocked);
 
+        // All four done: stop the clock now, so the closing celebration can't run it out, and
+        // request the winner's certificate while the celebration plays
+        if (nextUnlocked.length === CERTIFICATES.length) {
+          clearInterval(timerRef.current);
+          const timeTakenSeconds = RACE_SECONDS - timeLeft;
+          setWinSeconds(timeTakenSeconds);
+          requestWinnerCertificate(participantName, timeTakenSeconds);
+        }
+
         sound.playFanfare();
         sound.playUnlock();
 
@@ -266,13 +323,14 @@ export default function App() {
           origin: { y: 0.45 }
         });
 
-        // Trigger Full-Screen Arcade Trophy Animation (like 1-2-3 countdown)
+        // Non-blocking "certificate complete" notice; play continues underneath
         setUnlockAnimCert(cert);
       }
     } else {
       // INCORRECT!
       sound.playError();
       setCombo(1); // reset streak
+      setWrongSortsCount(prev => prev + 1);
 
       // Trigger arcade mismatch slam
       setMismatchAlert({
@@ -367,10 +425,13 @@ export default function App() {
       {gameState === 'scorecard' && (
         <ResultScoreCardModal
           participantName={participantName}
-          score={score}
           unlockedCertificates={unlockedCertificates}
+          collectedByCertificate={collectedByCertificate}
           correctSortsCount={correctSortsCount}
-          highestCombo={highestCombo}
+          wrongSortsCount={wrongSortsCount}
+          winnerCertificate={winnerCertificate}
+          timeTakenSeconds={winSeconds}
+          onRetryCertificate={() => requestWinnerCertificate(participantName, winSeconds)}
           timeExpired={timeLeft === 0}
           lang={lang}
           onViewCertificate={handleViewCertificate}
@@ -384,9 +445,9 @@ export default function App() {
           FULL-SCREEN & IN-GAME ARCADE ANIMATIONS
           ======================================================== */}
 
-      {/* 1. Full-Screen Certificate Unlocked Trophy Slam Animation (Like 1-2-3 countdown) */}
+      {/* 1. Certificate complete: small notice that doesn't block play */}
       {unlockAnimCert && (
-        <CertificateUnlockAnimation
+        <CertificateUnlockNotice
           certificate={unlockAnimCert}
           lang={lang}
           onFinish={() => {

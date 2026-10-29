@@ -1,8 +1,10 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import {
-  Languages, Volume2, VolumeX, Flag, Rocket, Award, GalleryHorizontal, Hand, ListChecks, Timer, FileCheck2
+  Languages, Volume2, VolumeX, Flag, Rocket, Award, GalleryHorizontal, Hand, ListChecks, Timer, FileCheck2,
+  LayoutGrid
 } from 'lucide-react';
 import { sound } from '../audio';
+import { LAUNCHER_URL } from '../config';
 import Icon from './Icon';
 import NameKeyboard, { NAME_MAX_LENGTH, typeIntoName, isNameValid } from './NameKeyboard';
 import './WelcomeScreen.css';
@@ -126,6 +128,15 @@ export default function WelcomeScreen({
         </div>
 
         <div className="welcome-nav-controls">
+          {LAUNCHER_URL && (
+            <a
+              href={LAUNCHER_URL}
+              className="icon-btn lang-btn"
+              title={isEn ? 'Back to all games' : 'सभी खेलों पर वापस'}
+            >
+              <Icon as={LayoutGrid} /> {isEn ? 'All games' : 'सभी खेल'}
+            </a>
+          )}
           <button
             type="button"
             onClick={onToggleLang}

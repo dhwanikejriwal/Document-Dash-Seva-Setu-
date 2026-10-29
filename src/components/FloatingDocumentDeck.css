@@ -2,8 +2,6 @@
    AREA A: TOP FLOATING DOCUMENT BOXES
    ======================================================== */
 .top-prerequisites-deck-container {
-  /* Side lanes for the slider arrows, so they never cover a document */
-  --deck-gutter: 64px;
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -56,11 +54,11 @@
   border-radius: var(--radius-lg);
 }
 
-/* Slider arrows: glowing buttons centred on each side of the document list.
-   They sit outside the faded viewport so the edge fade doesn't dim them. */
+/* Slider arrows: slim glowing ‹ › glyphs overlaid on the faded edges of the
+   list, so the documents keep the full width. They sit outside the faded
+   viewport so the edge fade doesn't dim them. */
 .deck-slider {
   position: relative;
-  padding-inline: var(--deck-gutter);
 }
 
 .deck-arrow {
@@ -68,35 +66,36 @@
   top: 50%;
   translate: 0 -50%;
   z-index: 5;
-  width: 52px;
-  height: 52px;
+  /* Narrow but tall, so the tap target is generous without covering a card */
+  width: 32px;
+  height: 72px;
   display: grid;
   place-items: center;
-  border: 2px solid var(--white);
-  border-radius: 50%;
-  background: linear-gradient(135deg, var(--blue-600), var(--cyan-400));
-  color: var(--white);
-  font-size: var(--text-3xl);
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--blue-600);
+  font-size: 40px;
   cursor: pointer;
   touch-action: manipulation;
-  animation: deckArrowGlow 1.8s ease-in-out infinite;
+  animation: deckArrowGlow 1.6s ease-in-out infinite;
   transition: opacity var(--dur-base), transform var(--dur-fast) var(--ease-out);
 }
 
 .deck-arrow--prev {
-  left: 2px;
+  left: 0;
 }
 
 .deck-arrow--next {
-  right: 2px;
+  right: 0;
 }
 
 .deck-arrow:hover {
-  transform: scale(1.08);
+  transform: scale(1.12);
 }
 
 .deck-arrow:active {
-  transform: scale(0.94);
+  transform: scale(0.92);
 }
 
 /* No more documents in that direction */
@@ -105,12 +104,13 @@
   pointer-events: none;
 }
 
+/* White halo keeps the glyph readable over cards; the blue glow pulses */
 @keyframes deckArrowGlow {
   0%, 100% {
-    box-shadow: 0 0 0 0 rgba(var(--cyan-400-rgb), 0.6), 0 6px 18px rgba(var(--blue-500-rgb), 0.35);
+    filter: drop-shadow(0 0 2px var(--white)) drop-shadow(0 0 4px rgba(var(--cyan-400-rgb), 0.5));
   }
   50% {
-    box-shadow: 0 0 0 12px rgba(var(--cyan-400-rgb), 0), 0 6px 26px rgba(var(--blue-500-rgb), 0.6);
+    filter: drop-shadow(0 0 2px var(--white)) drop-shadow(0 0 12px rgba(var(--cyan-400-rgb), 0.95));
   }
 }
 
@@ -122,13 +122,13 @@
   mask-image: linear-gradient(90deg, transparent 0, var(--black) var(--fade-left), var(--black) calc(100% - var(--fade-right)), transparent 100%);
 }
 
-/* A light edge fade still hints that more documents continue past the edge */
+/* The edge fade hints that more documents continue, and softens the strip under the arrows */
 .deck-viewport.fade-left {
-  --fade-left: 28px;
+  --fade-left: 40px;
 }
 
 .deck-viewport.fade-right {
-  --fade-right: 28px;
+  --fade-right: 40px;
 }
 
 .floating-boxes-shelf {
@@ -164,7 +164,7 @@
 .deck-progress-track {
   position: relative;
   height: 4px;
-  margin: 0 calc(var(--deck-gutter) + 6px);
+  margin: 0 6px;
   border-radius: var(--radius-pill);
   background: rgba(var(--blue-500-rgb), 0.12);
   overflow: hidden;

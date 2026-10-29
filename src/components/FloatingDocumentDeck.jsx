@@ -196,7 +196,7 @@ export default function FloatingDocumentDeck({
       </div>
 
       {/* Horizontal slider: two rows of cards that scroll along the x axis.
-          Glowing arrows sit on each side, shown only when there is more to slide to. */}
+          Slim glowing arrows overlay each edge, shown only when there is more to slide to. */}
       <div className="deck-slider">
         <button
           type="button"
@@ -206,7 +206,7 @@ export default function FloatingDocumentDeck({
           aria-hidden={scroll.atStart || undefined}
           aria-label={isEn ? 'Previous documents' : 'पिछले दस्तावेज़'}
         >
-          <Icon as={ChevronLeft} />
+          <Icon as={ChevronLeft} strokeWidth={3} />
         </button>
         <button
           type="button"
@@ -216,7 +216,7 @@ export default function FloatingDocumentDeck({
           aria-hidden={scroll.atEnd || undefined}
           aria-label={isEn ? 'More documents' : 'अगले दस्तावेज़'}
         >
-          <Icon as={ChevronRight} />
+          <Icon as={ChevronRight} strokeWidth={3} />
         </button>
 
         <div className={`deck-viewport ${scroll.atStart ? '' : 'fade-left'} ${scroll.atEnd ? '' : 'fade-right'}`}>

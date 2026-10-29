@@ -168,7 +168,7 @@ Configure the deployment with Vite env vars (copy `.env.example` to `.env.produc
 | Variable | Purpose | Default |
 |---|---|---|
 | `VITE_LAUNCHER_URL` | Game selection screen to return to between players. Empty: stay on this game's start screen. | *(empty)* |
-| `VITE_GAME_NAME` | Game identifier sent to the certificate API | `Document_Dash` |
+| `VITE_GAME_NAME` | Game name sent to the certificate API and printed on the certificate | `Document Dash` |
 | `VITE_CERTIFICATE_API_URL` | Certificate API endpoint | `https://cggeomap.cgstate.gov.in/rajyotsav/api/certificate` |
 
 Every API call creates a new certificate on the server, so test against a stand-in endpoint

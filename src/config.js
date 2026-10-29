@@ -4,8 +4,8 @@
 export const CERTIFICATE_API_URL =
   import.meta.env.VITE_CERTIFICATE_API_URL || 'https://cggeomap.cgstate.gov.in/rajyotsav/api/certificate';
 
-// This game's identifier on generated certificates
-export const GAME_NAME = import.meta.env.VITE_GAME_NAME || 'Document_Dash';
+// This game's name as printed on the winner's certificate, so plain words (no underscores)
+export const GAME_NAME = import.meta.env.VITE_GAME_NAME || 'Document Dash';
 
 // Game selection screen that opens this game. When set, the kiosk returns there between
 // players; when empty, it returns to this game's own start screen.
